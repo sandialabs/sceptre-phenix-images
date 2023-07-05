@@ -1,4 +1,3 @@
 #!/bin/bash
 printf "\n"
-printf " * Documentation: http://phenix-rising.srn.sandia.gov/sceptre"
 printf "\n"
