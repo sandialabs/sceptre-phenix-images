@@ -25,14 +25,6 @@ In step 1, the tool compiles command line arguments, scripts, and filesystem ove
     phenix image build bennu -o /phenix -c -x
     ```
 
-### kali19
-- Kali 2019 image built with XFCE, kali-linux-top10, PEAT, Bettercap, some custom caplets, and some commonly used tools
-
-    ```bash
-    phenix image create -O /phenix/vmdb2/overlays/kali19 -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/kali19 --mirror http://http.kali.org/kali --debootstrap-append="--components=main,non-free,contrib" --variant mingui --release kali-rolling --size 20G --format qcow2 -c kali19
-    phenix image build kali19 -o /phenix -c -x
-    ```
-
 ### Ubuntu 
 - Basic Ubunutu 
  
