@@ -29,7 +29,7 @@ In step 1, the tool compiles command line arguments, scripts, and filesystem ove
 - Basic Ubunutu 
  
     ```bash
-    phenix image create /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/ubuntu --format qcow2 --release focal -c ubuntu
+    phenix image create -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/ubuntu --format qcow2 --release focal -c ubuntu
     phenix image build ubuntu -o /phenix -c -x
     ```
 
