@@ -4,10 +4,19 @@ export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget iperf3
 
-pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org ipython pymodbus
-apt-get autoremove -y
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
+
+# TODO: man pages?
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget git nano vim jq
+
+# Install Python dependencies
+export PIP_DISABLE_PIP_VERSION_CHECK=1
+pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir ipython pymodbus
+
+apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+
+# Set sticky bit on brash binary
 brash=$(which bennu-brash)
 if ! [ -z "$brash" ]
 then
