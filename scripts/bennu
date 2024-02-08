@@ -7,8 +7,14 @@ ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
 
-# TODO: man pages?
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget git nano vim jq
+# man pages. They only add ~10-20MB to the image size.
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db manpages-posix manpages-dev
+
+# NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
+# However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
+# systemd-timesyncd
+# NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp
 
 # Install Python dependencies
 export PIP_DISABLE_PIP_VERSION_CHECK=1
