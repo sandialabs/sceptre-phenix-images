@@ -50,6 +50,10 @@ echo "root:SiaSd3te" | chpasswd
 adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login
 echo "sceptre:sceptre" | chpasswd
 
+# https://serverfault.com/a/1016367
+systemctl disable systemd-timesyncd
+systemctl enable ntp
+
 # phenix hostname
 echo "phenix" > /etc/hostname
 sed -i 's/127.0.1.1 .*/127.0.1.1 phenix/' /etc/hosts
