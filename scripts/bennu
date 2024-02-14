@@ -56,18 +56,3 @@ systemctl enable ntp
 
 # Ensure /etc is owned by root, as god intended
 chown -R root:root /etc
-
-# phenix hostname
-echo "phenix" > /etc/hostname
-sed -i 's/127.0.1.1 .*/127.0.1.1 phenix/' /etc/hosts
-cat > /etc/motd <<EOF
-
-██████╗ ██╗  ██╗███████╗███╗  ██╗██╗██╗  ██╗
-██╔══██╗██║  ██║██╔════╝████╗ ██║██║╚██╗██╔╝
-██████╔╝███████║█████╗  ██╔██╗██║██║ ╚███╔╝
-██╔═══╝ ██╔══██║██╔══╝  ██║╚████║██║ ██╔██╗
-██║     ██║  ██║███████╗██║ ╚███║██║██╔╝╚██╗
-╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚══╝╚═╝╚═╝  ╚═╝
-
-EOF
-echo "\nBuilt with phenix image on $(date)\n\n" >> /etc/motd
