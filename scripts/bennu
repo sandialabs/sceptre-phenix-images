@@ -2,7 +2,17 @@ set -x
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget iperf3
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget iperf3 ca-certificates && apt-get clean
+
+# install labjack libraries for pybennu-siren
+PREV="$(pwd)"
+mkdir -p /tmp/labjack
+cd /tmp/labjack
+wget -q https://files.labjack.com/installers/LJM/Linux/x64/release/labjack_ljm_software_2019_07_16_x86_64.tar.gz -O labjack.tar.gz
+tar -xaf labjack.tar.gz
+./labjack_ljm_software_2019_07_16_x86_64/labjack_ljm_installer.run
+cd "$PREV"
+rm -r /tmp/labjack
 
 pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org ipython pymodbus
 apt-get autoremove -y

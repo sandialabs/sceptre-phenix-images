@@ -21,7 +21,7 @@ In step 1, the tool compiles command line arguments, scripts, and filesystem ove
 - Official SCEPTRE image used for running bennu in experiments (includes brash shell)
 
     ```bash
-    phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release focal -c bennu
+    phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release focal -c bennu --size 10G
     phenix image build bennu -o /phenix -c -x
     ```
 
