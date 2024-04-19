@@ -1,2 +1,2 @@
-pybennu_develop.deb
 .vscode/
+overlays/bennu/*.deb

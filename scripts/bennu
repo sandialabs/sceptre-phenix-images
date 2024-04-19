@@ -2,7 +2,10 @@ set -x
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
+export PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# TODO: this should be UTC
+# ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
@@ -12,15 +15,16 @@ apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" 
 
 # NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
 # However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
-# systemd-timesyncd
 # NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp
+apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+
+# apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-dev socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp
+# apt-get install -y --no-install-recommends cmake gcc g++ build-essential make libunwind-dev libunwind8
+# dpkg -i /pybennu.deb
 
 # Install Python dependencies
-export PIP_DISABLE_PIP_VERSION_CHECK=1
 pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir ipython pymodbus
-
-apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 # Set sticky bit on brash binary
 brash=$(which bennu-brash)
