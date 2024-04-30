@@ -1,26 +1,48 @@
 set -x
+
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
+export PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# TODO: this should be UTC
+# ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv pybennu python3 python3-pip python3-setuptools python3-twisted python3-wheel socat systemd-timesyncd tcpdump tmux telnet vsftpd wget iperf3 ca-certificates libusb-1.0-0 && apt-get clean
+
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
+
+# man pages. They only add ~10-20MB to the image size.
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db manpages-posix manpages-dev
+
+# NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
+# However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
+# NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0
+apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+
+# apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-dev socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0
+# apt-get install -y --no-install-recommends cmake gcc g++ build-essential make libunwind-dev libunwind8
+# dpkg -i /pybennu.deb
 
 # install labjack libraries for pybennu-siren
-PREV="$(pwd)"
 mkdir -p /tmp/labjack
-cd /tmp/labjack
+pushd /tmp/labjack || exit
 wget -q https://files.labjack.com/installers/LJM/Linux/x64/release/labjack_ljm_software_2019_07_16_x86_64.tar.gz -O labjack.tar.gz
 tar -xaf labjack.tar.gz
 ./labjack_ljm_software_2019_07_16_x86_64/labjack_ljm_installer.run
-cd "$PREV"
-rm -r /tmp/labjack
+popd || exit
+rm -rf /tmp/labjack
 
-pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org ipython pymodbus
-apt-get autoremove -y
+# Install Python dependencies
+pip3 install --no-cache-dir ipython pymodbus
+
+# Set sticky bit on brash binary
 brash=$(which bennu-brash)
 if ! [ -z "$brash" ]
 then
     chmod u+s $brash
 fi
+
+# Configure FTP service and allow "sceptre" user
 sed -i 's/pam_service_name=vsftpd/pam_service_name=ftp/g' /etc/vsftpd.conf
 echo "sceptre" >> /etc/vsftpd.allowed_users
 cat <<EOF >> /etc/vsftpd.conf
@@ -33,20 +55,18 @@ userlist_deny=NO
 userlist_enable=YES
 userlist_file=/etc/vsftpd.allowed_users
 EOF
+
+# Change root's password
 echo "root:SiaSd3te" | chpasswd
+
+# Add "sceptre" user, set their login shell to Brash
 adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login
 echo "sceptre:sceptre" | chpasswd
-# phenix hostname
-echo "phenix" > /etc/hostname
-sed -i 's/127.0.1.1 .*/127.0.1.1 phenix/' /etc/hosts
-cat > /etc/motd <<EOF
 
-██████╗ ██╗  ██╗███████╗███╗  ██╗██╗██╗  ██╗
-██╔══██╗██║  ██║██╔════╝████╗ ██║██║╚██╗██╔╝
-██████╔╝███████║█████╗  ██╔██╗██║██║ ╚███╔╝
-██╔═══╝ ██╔══██║██╔══╝  ██║╚████║██║ ██╔██╗
-██║     ██║  ██║███████╗██║ ╚███║██║██╔╝╚██╗
-╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚══╝╚═╝╚═╝  ╚═╝
+# https://serverfault.com/a/1016367
+systemctl disable systemd-timesyncd
+systemctl enable ntp
 
-EOF
-echo "\nBuilt with phenix image on $(date)\n\n" >> /etc/motd
+# Ensure /etc is owned by root
+# This fixes funkyness if overlay files on the host running the build aren't owned by root
+chown -R root:root /etc
