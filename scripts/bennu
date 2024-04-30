@@ -24,12 +24,14 @@ apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # dpkg -i /pybennu.deb
 
 # install labjack libraries for pybennu-siren
+# NOTE: pushd/popd cannot be used here due to the fact this isn't bash
+PREV="$(pwd)"
 mkdir -p /tmp/labjack
-pushd /tmp/labjack || exit
+cd /tmp/labjack
 wget -q https://files.labjack.com/installers/LJM/Linux/x64/release/labjack_ljm_software_2019_07_16_x86_64.tar.gz -O labjack.tar.gz
 tar -xaf labjack.tar.gz
 ./labjack_ljm_software_2019_07_16_x86_64/labjack_ljm_installer.run
-popd || exit
+cd "$PREV"
 rm -rf /tmp/labjack
 
 # Install Python dependencies
