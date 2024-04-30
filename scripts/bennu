@@ -33,7 +33,7 @@ popd || exit
 rm -rf /tmp/labjack
 
 # Install Python dependencies
-pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir ipython pymodbus
+pip3 install --no-cache-dir ipython pymodbus
 
 # Set sticky bit on brash binary
 brash=$(which bennu-brash)
