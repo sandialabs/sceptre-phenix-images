@@ -5,36 +5,34 @@
 2. Build the image.
 
 ## How it works
-In step 1, the tool compiles command line arguments, scripts, and filesystem overlay paths on disk into an `Image` vmdb configuration file in the phenix datastore. The scripts and overlays are specified on the command line by path. In step 2, the tool runs vmdb2 with the generated `Image` config which then creates the VM image. The examples below show how to build commonly-used images from configs saved in the repo and how to create those configs from command-line arguments, scripts, and overlays saved in the repo.
+In step 1, the tool compiles command line arguments, scripts, and filesystem overlay paths on disk into an `Image` vmdb configuration file in the phenix datastore. The scripts and overlays are specified on the command line by path.
 
-## Prerequisites
-- Ubuntu 18.04+ (`lsb_release -rs`)
-- Packages:
-  - `python3 python3-cliapp python3-jinja2 python3-yaml cmdtest debootstrap parted kpartx qemu-kvm`
-- The easiest way to install dependencies:
-  - `apt install -y vmdb2 qemu-kvm && apt remove -y vmdb2`
-  - This will install the required dependencies for vmdb2 (and therefore phenix image) and then uninstall the standard 'vmdb2' package, since phenix bundles a [custom version of 'vmdb2'](https://github.com/glattercj/vmdb2/releases/tag/v1.0)
+In step 2, the tool runs vmdb2 with the generated `Image` config which then creates the VM image. The image commands below show how to build commonly-used images from configs saved in the repo and how to create those configs from command-line arguments, scripts, and overlays saved in the repo.
 
-# Examples
+## Images
+
+### Proxy Info
+Note if building images behind a proxy, you may also need to edit and add the `proxy` script to your build.
 
 ### bennu
-- Official SCEPTRE image used for running bennu in experiments (includes brash shell)
+Official SCEPTRE image used for running bennu in experiments (includes brash shell).
 
-    ```bash
-    phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release focal -c bennu --size 10G
-    phenix image build bennu -o /phenix -c -x
-    ```
+The max size of the VM disk in the example below is set to 10 gigabytes, but can be customized as needed. Running the built command will result in `/phenix/bennu.qc2`.
+
+```bash
+phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release focal -c bennu --size 10G
+phenix image build bennu -o /phenix -c -x
+```
 
 ### Ubuntu 
-- Basic Ubunutu 
- 
-    ```bash
-    phenix image create -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/ubuntu --format qcow2 --release focal -c ubuntu
-    phenix image build ubuntu -o /phenix -c -x
-    ```
+Basic Ubuntu image with a few packages added. The Ubuntu version built can be changed via `--release`, e.g. `--release focal` will build Ubuntu 20.04 LTS (Focal Fossa). 
 
-## Proxy Info
-Note if building images behind a proxy, you may also need to edit and add the `proxy` script to your build.
+The max size of the VM disk in the example below is set to 10 gigabytes, but can be customized as needed. Running the built command will result in `/phenix/ubuntu.qc2`.
+ 
+```bash
+phenix image create -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/ubuntu --format qcow2 --release focal -c ubuntu --size 10G
+phenix image build ubuntu -o /phenix -c -x
+```
 
 ## Image Update
 If you change overlays and/or scripts on disk and rebuild an image with the same image config file, the changes will not be reflected in the newly built image. This is because the image is built from the config, not from the scripts/overlays on disk. Therefore, you have to update the config before you rebuild the image. To do so without having to re-run `phenix image create` and all of its command-line arguments just run `phenix image update name` where `name` is the name of your config. This command will update the config file with any changes made to the overlays and scripts on disk. Moreover, if they cannot be found on disk, no changes will be made to that overlay/script that cannot be found.
