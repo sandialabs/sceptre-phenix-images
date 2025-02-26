@@ -16,7 +16,7 @@ apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" 
 # NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
 # However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
 # NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" libzmq5-dev bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0
 apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 # apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-dev socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0
