@@ -110,17 +110,22 @@ jobs:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      - name: get images from artifacts
-        uses: actions/download-artifact@v4.1.8
-        with:
-          pattern: "*.qc2"
-          path: ./images
-          merge-multiple: true
+      # - name: get images from artifacts
+      #   uses: actions/download-artifact@v4.1.8
+      #   with:
+      #     pattern: "*.qc2"
+      #     path: ./images
+      #     merge-multiple: true
 
       - name: create release
         uses: ncipollo/release-action@v1.15.0
         with:
           name: release-${{ steps.date.outputs.date }}
-          artifacts: "./images/*.qc2"
+          body: |
+            Images are too large to be attached to the release directly.  
+            For the full set of downloadable images, visit the [artifacts page](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          # artifacts: "./images/*.qc2"
           tag: release-${{ steps.date.outputs.date }}
           commit: main
+          generateReleaseNotes: true
+          makeLatest: true
