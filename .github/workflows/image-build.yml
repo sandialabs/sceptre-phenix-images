@@ -9,7 +9,7 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   schedule:
-    - cron: '11 11 * * WED'
+    - cron: "11 11 * * WED"
 jobs:
   # save minicc and minirouter as artifacts to inject in image later
   get-miniccc:
@@ -25,11 +25,11 @@ jobs:
             /opt/minimega/bin/miniccc
             /opt/minimega/bin/minirouter
   # build using phenix image builder
-  build:
+  build-bennu:
     needs: get-miniccc
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sandialabs/sceptre-phenix/phenix:main
+      image: ghcr.io/sandialabs/sceptre-phenix/phenix:31ce034
       options: --privileged # needed for kernel device-mapper permissions
 
     steps:
@@ -62,23 +62,65 @@ jobs:
         with:
           name: bennu.qc2
           path: ./out/bennu.qc2
+  build-ubuntu:
+    needs: get-miniccc
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sandialabs/sceptre-phenix/phenix:31ce034
+      options: --privileged # needed for kernel device-mapper permissions
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      # Runs a set of commands using the runners shell
+      - name: get miniexes
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: miniexes
+
+      # add the miniccc binary
+      # the phenix base scripts already include the systemd service
+      - name: add miniccc
+        run: |
+          mkdir -p ./overlays/miniccc/opt/minimega/bin
+          cp ./miniccc ./overlays/miniccc/opt/minimega/bin
+          chmod +x ./overlays/miniccc/opt/minimega/bin/miniccc
+
+      - name: ubuntu image build
+        run: |
+          phenix version
+          mkdir ./out
+          phenix image create -O ./overlays/miniccc -T ./scripts/ubuntu,./scripts/ubuntu-user --format qcow2 --release noble -c ubuntu --size 10G
+          phenix image build ubuntu -o ./out -x
+
+      # upload bennu qc2 as artifact
+      - name: upload qc2
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu.qc2
+          path: ./out/ubuntu.qc2
   # upload to github release
   release:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    needs:
+      - build-bennu
+      - build-ubuntu
     runs-on: ubuntu-latest
     steps:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      - name: get bennu image
+      - name: get images from artifacts
         uses: actions/download-artifact@v4.1.8
         with:
-          name: bennu.qc2
+          pattern: "*.qc2"
+          path: ./images
+          merge-multiple: true
+
       - name: create release
         uses: ncipollo/release-action@v1.15.0
         with:
           name: release-${{ steps.date.outputs.date }}
-          artifacts: bennu.qc2
+          artifacts: "./images/*.qc2"
           tag: release-${{ steps.date.outputs.date }}
           commit: main

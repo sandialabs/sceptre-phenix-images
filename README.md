@@ -30,7 +30,7 @@ Basic Ubuntu image with a few packages added. The Ubuntu version built can be ch
 The max size of the VM disk in the example below is set to 10 gigabytes, but can be customized as needed. Running the built command will result in `/phenix/ubuntu.qc2`.
  
 ```bash
-phenix image create -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/ubuntu --format qcow2 --release focal -c ubuntu --size 10G
+phenix image create -T /phenix/vmdb2/scripts/ubuntu,/phenix/vmdb2/scripts/ubuntu-user --format qcow2 --release noble -c ubuntu --size 10G
 phenix image build ubuntu -o /phenix -c -x
 ```
 
