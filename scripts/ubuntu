@@ -1,27 +1,46 @@
-set -x
+#!/bin/sh
 
-apt-get update
+set -ex
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y gcc autoconf libtool linux-image-generic linux-headers-generic initramfs-tools net-tools isc-dhcp-client openssh-server init iputils-ping vim less netbase curl ethtool rsync ifupdown dbus nmap tcpdump iptables build-essential libpcap-dev libpcre3-dev libdumbnet-dev bison flex zlib1g-dev liblzma-dev openssl libssl-dev wget arptables libluajit-5.1-dev libnghttp2-dev libdnet xfce4 xorg xserver-xorg-input-all dbus-x11 xserver-xorg-video-qxl xserver-xorg-video-vesa xinit xfce4-terminal qupzilla python3 python3-pip python3-distutils python3-scapy python3-bitstring tshark tmux ettercap-common ettercap-text-only python3-numpy python3-scipy python3-matplotlib wireshark python3-twisted python3-plotly apache2
+# Load VERSION_CODENAME to use when adding apt repos
+. /etc/os-release
 
+## Save this for later because future ubuntu versions will require this format
+# cat <<EOF > /etc/apt/sources.list.d/ubuntu.sources
+# Types: deb
+# URIs: http://archive.ubuntu.com/ubuntu
+# Suites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates ${VERSION_CODENAME}-backports
+# Components: main universe restricted multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# ## Ubuntu security updates. Aside from URIs and Suites,
+# ## this should mirror your choices in the previous section.
+# Types: deb
+# URIs: http://security.ubuntu.com/ubuntu
+# Suites: ${VERSION_CODENAME}-security
+# Components: main universe restricted multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+# EOF
+
+# Add updates, security, and backports
+cat <<EOF > /etc/apt/sources.list
+deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME}-updates main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME}-security main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME}-backports main restricted universe multiverse
+EOF
+
+export DEBIAN_FRONTEND=noninteractive
+apt update
+apt upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+apt install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" net-tools openssh-server iputils-ping vim less nano micro ca-certificates sudo iptables
+
+systemctl enable ssh
+
+# apt cleanup
 rm -rf /var/cache/apt/archives
-
-kernel=$(uname -r)
-update-initramfs -c -k $kernel
-
-echo "ubuntu" > /etc/hostname
-sed -i 's/127.0.1.1 .*/127.0.1.1 ubuntu/' /etc/hosts
-
-#echo -e "password\npassword" | passwd root
-sed -i 's/nullok_secure/nullok/' /etc/pam.d/common-auth
-sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-sed -i 's/PermitEmptyPasswords no/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
-passwd -d root
-sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
-sed -i 's/#PermitEmptyPasswords yes/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
-
 apt clean
+apt autoremove
 
-mkdir /media/cdrom
-echo "/dev/sda1   /              ext2 defaults             1 1
-/dev/cdrom  /media/cdrom   auto ro,noauto,user,exec  0 0" > /etc/fstab
+# add phenix hostname
+echo '127.0.1.1 phenix' > /etc/hosts
