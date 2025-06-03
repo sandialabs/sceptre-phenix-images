@@ -20,7 +20,7 @@ Official SCEPTRE image used for running bennu in experiments (includes brash she
 The max size of the VM disk in the example below is set to 10 gigabytes, but can be customized as needed. Running the built command will result in `/phenix/bennu.qc2`.
 
 ```bash
-phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release focal -c bennu --size 10G
+phenix image create -O /phenix/vmdb2/overlays/bennu,/phenix/vmdb2/overlays/brash -T /phenix/vmdb2/scripts/aptly,/phenix/vmdb2/scripts/bennu --format qcow2 --release jammy -c bennu --size 10G
 phenix image build bennu -o /phenix -c -x
 ```
 
