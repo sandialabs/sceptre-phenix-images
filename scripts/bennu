@@ -1,4 +1,4 @@
-set -x
+set -ex
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
@@ -11,7 +11,7 @@ ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
 
 # man pages. They only add ~10-20MB to the image size.
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db manpages-posix manpages-dev
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db  manpages-dev
 
 # NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
 # However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
@@ -25,12 +25,13 @@ apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 
 # install labjack libraries for pybennu-siren
 # NOTE: pushd/popd cannot be used here due to the fact this isn't bash
+apt-get install -y --no-install-recommends unzip
 PREV="$(pwd)"
 mkdir -p /tmp/labjack
 cd /tmp/labjack
-wget -q https://files.labjack.com/installers/LJM/Linux/x64/release/labjack_ljm_software_2019_07_16_x86_64.tar.gz -O labjack.tar.gz
-tar -xaf labjack.tar.gz
-./labjack_ljm_software_2019_07_16_x86_64/labjack_ljm_installer.run
+wget -q https://files.labjack.com/installers/LJM/Linux/x64/beta/LabJack-LJM_2025-02-12.zip -O labjack.zip
+unzip labjack.zip
+./labjack_ljm_installer.run --noprogress --nox11 --accept --nodiskspace || true
 cd "$PREV"
 rm -rf /tmp/labjack
 
@@ -62,7 +63,7 @@ EOF
 echo "root:SiaSd3te" | chpasswd
 
 # Add "sceptre" user, set their login shell to Brash
-adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login
+adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login || true
 echo "sceptre:sceptre" | chpasswd
 
 # https://serverfault.com/a/1016367
@@ -72,3 +73,5 @@ systemctl enable ntp
 # Ensure /etc is owned by root
 # This fixes funkyness if overlay files on the host running the build aren't owned by root
 chown -R root:root /etc
+
+apt-get -y clean || true
