@@ -16,3 +16,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_tags: true
           keep_latest_days: 90
+
+  cleanup-old-images:
+    name: Delete Untagged Images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          older-than: 90 day
+          packages: sceptre-phenix-images/bennu.qc2,sceptre-phenix-images/ubuntu.qc2
+          keep-n-tagged: 5
+          exclude-tags: latest
