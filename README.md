@@ -10,6 +10,8 @@ Pre-built qcow2 images are available as [Packages](https://github.com/orgs/sandi
 ```
 oras pull ghcr.io/sandialabs/sceptre-phenix-images/bennu.qc2:latest
 ```
+_This example will download the latest version of bennu.qc2 to your current working directory._
+
 Images are built weekly and saved for 90 days. View the [Github workflow](./.github/workflows/image-build.yml) for the details on how images are built.
 
 ## How it works
