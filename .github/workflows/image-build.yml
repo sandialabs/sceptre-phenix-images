@@ -76,6 +76,7 @@ jobs:
       - name: publish package with oras
         # Only push package if on the default branch (e.g., main)
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        shell: bash
         run: |
           cd ./out
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
@@ -127,6 +128,7 @@ jobs:
       - name: publish package with oras
         # Only push package if on the default branch (e.g., main)
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)      
+        shell: bash
         run: |
           cd ./out
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
