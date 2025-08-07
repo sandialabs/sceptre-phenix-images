@@ -4,6 +4,14 @@
 1. Create an image configuration by specifying things like release code, packages, scripts to run after building, and filesystem overlays.
 2. Build the image.
 
+## Pre-built Images
+Pre-built qcow2 images are available as [Packages](https://github.com/orgs/sandialabs/packages?repo_name=sceptre-phenix-images). They are stored in OCI registry format (due to size constraints) and require the [oras](https://oras.land/docs/installation) client to download. Once you have the oras client installed you can download with a command like:
+
+```
+oras pull ghcr.io/sandialabs/sceptre-phenix-images/bennu.qc2:latest
+```
+Images are built weekly and saved for 90 days. View the [Github workflow](./.github/workflows/image-build.yml) for the details on how images are built.
+
 ## How it works
 In step 1, the tool compiles command line arguments, scripts, and filesystem overlay paths on disk into an `Image` vmdb configuration file in the phenix datastore. The scripts and overlays are specified on the command line by path.
 

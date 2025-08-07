@@ -39,8 +39,8 @@ systemctl enable ssh
 
 # apt cleanup
 rm -rf /var/cache/apt/archives
-apt clean
-apt autoremove
+apt clean -y
+apt autoremove -y
 
 # add phenix hostname
 echo '127.0.1.1 phenix' > /etc/hosts
