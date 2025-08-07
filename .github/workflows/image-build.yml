@@ -74,10 +74,12 @@ jobs:
 
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras
+        # Only push package if on the default branch (e.g., main)
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: |
           cd ./out
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras push "ghcr.io/${{ github.repository }}/bennu.qc2:${{ github.ref_name }}" bennu.qc2
+          oras push "ghcr.io/${{ github.repository }}/bennu.qc2:${GITHUB_SHA:0:7}" bennu.qc2
 
   # Job: Build the ubuntu image using the phenix image builder
   build-ubuntu:
@@ -123,15 +125,17 @@ jobs:
 
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras
+        # Only push package if on the default branch (e.g., main)
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)      
         run: |
           cd ./out
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras push "ghcr.io/${{ github.repository }}/ubuntu.qc2:${{ github.ref_name }}" ubuntu.qc2
+          oras push "ghcr.io/${{ github.repository }}/ubuntu.qc2:${GITHUB_SHA:0:7}" ubuntu.qc2
 
   # Job: Tag and release images after successful builds
   release:
     # Only run on main branch for scheduled or manual workflow_dispatch events
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - build-bennu
       - build-ubuntu
@@ -159,8 +163,8 @@ jobs:
         run: |
           oras version
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras tag ghcr.io/${{ github.repository }}/bennu.qc2:${{ github.ref_name }} latest ${{ steps.date.outputs.date }}
-          oras tag ghcr.io/${{ github.repository }}/ubuntu.qc2:${{ github.ref_name }} latest ${{ steps.date.outputs.date }}
+          oras tag ghcr.io/${{ github.repository }}/bennu.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
+          oras tag ghcr.io/${{ github.repository }}/ubuntu.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
 
       # Create a GitHub release with notes and usage instructions
       - name: create release
