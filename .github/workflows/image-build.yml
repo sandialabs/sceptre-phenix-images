@@ -14,174 +14,110 @@ on:
     - cron: "11 11 * * WED"
 
 jobs:
-  # Job: Save minicc and minirouter as artifacts for later use in image builds
-  get-miniccc:
+  # Job: Build images using the phenix image builder
+  build-images:
+    strategy:
+      matrix:
+        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sandialabs/sceptre-phenix/minimega:main
     steps:
-      # Upload binaries as artifact named 'miniexes'
-      - name: upload miniccc and minirouter
-        uses: actions/upload-artifact@v4
-        with:
-          name: miniexes
-          path: |
-            /opt/minimega/bin/miniccc
-            /opt/minimega/bin/minirouter
-
-  # Job: Build the bennu image using the phenix image builder
-  build-bennu:
-    needs: get-miniccc
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sandialabs/sceptre-phenix/phenix:31ce034
-      options: --privileged # needed for kernel device-mapper permissions
-
-    steps:
-      # Install oras CLI for pushing images to OCI registries
-      - name: oras install
-        uses: oras-project/setup-oras@v1
       # Checkout repository code
       - uses: actions/checkout@v4
-      # Download miniexes artifact (miniccc and minirouter)
-      - name: get miniexes
-        uses: actions/download-artifact@v4.1.8
+      # Install oras CLI for pushing images to OCI registries
+      - uses: oras-project/setup-oras@v1
+      - uses: docker/setup-docker-action@v4
+      - uses: docker/setup-compose-action@v1
+      - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          name: miniexes
-
-      # Add the miniccc binary to the overlay for image build
-      # The systemd service is already included in base scripts
-      - name: add miniccc
+          packages: qemu-utils
+          version: 1.0
+      # Pull docker containers
+      - name: pull docker containers
         run: |
-          mkdir -p ./overlays/miniccc/opt/minimega/bin
-          cp ./miniccc ./overlays/miniccc/opt/minimega/bin
-          chmod +x ./overlays/miniccc/opt/minimega/bin/miniccc
-
-      # Build the bennu image using phenix
-      - name: bennu image build
+          docker pull ghcr.io/sandialabs/sceptre-phenix/phenix:main
+          docker pull ghcr.io/sandialabs/sceptre-phenix/minimega:main
+          docker tag ghcr.io/sandialabs/sceptre-phenix/phenix:main phenix:latest
+          docker tag ghcr.io/sandialabs/sceptre-phenix/minimega:main minimega:latest
+      # Start docker containers
+      - name: wget docker-compose.yml
+        uses: wei/wget@v1
+        with:
+          args: https://raw.githubusercontent.com/sandialabs/sceptre-phenix/refs/heads/main/docker/docker-compose.yml
+      - name: start docker containers
         run: |
-          phenix version
-          mkdir ./out
-          phenix image create -O ./overlays/bennu,./overlays/brash,./overlays/miniccc -T ./scripts/aptly,./scripts/bennu --format qcow2 --release jammy -c bennu --size 10G
-          phenix image build bennu -o ./out -x
-
-      # Optionally upload bennu.qc2 as artifact (currently commented out)
-      # - name: upload qc2
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: bennu.qc2
-      #     path: ./out/bennu.qc2
-
+          sed -i 's/\.\/tmp/\/tmp/g' docker-compose.yml
+          sed -i '\|/tmp/phenix|a\      - ${{ github.workspace }}:/${{ github.workspace }}\n    working_dir: ${{ github.workspace }}' docker-compose.yml
+          docker compose -f docker-compose.yml up -d phenix
+          echo "Waiting for services to start..."
+          sleep 5
+      # Extract miniccc
+      - name: get miniccc
+        run: docker cp minimega:/opt/minimega/bin/miniccc ./
+      # Build the non-vyos images using phenix
+      - name: ${{ matrix.build }} image build
+        if: ${{ matrix.build != 'vyos' }}
+        run: make ${{ matrix.build }}
+      # Build the vyos image using custom build script
+      - name: ${{ matrix.build }} image build
+        if: ${{ matrix.build == 'vyos' }}
+        shell: bash
+        run: |
+          sudo modprobe nbd
+          sudo make ${{ matrix.build }}
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras
         # Only push package if on the default branch (e.g., main)
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         shell: bash
         run: |
-          cd ./out
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras push "ghcr.io/${{ github.repository }}/bennu.qc2:${GITHUB_SHA:0:7}" bennu.qc2
+          oras push "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" ${{ matrix.build }}.qc2
 
-  # Job: Build the ubuntu image using the phenix image builder
-  build-ubuntu:
-    needs: get-miniccc
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sandialabs/sceptre-phenix/phenix:31ce034
-      options: --privileged # needed for kernel device-mapper permissions
-
-    steps:
-      # Install oras CLI
-      - name: oras install
-        uses: oras-project/setup-oras@v1
-      # Checkout repository code
-      - uses: actions/checkout@v4
-      # Download miniexes artifact
-      - name: get miniexes
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: miniexes
-
-      # Add the miniccc binary to the overlay for image build
-      - name: add miniccc
-        run: |
-          mkdir -p ./overlays/miniccc/opt/minimega/bin
-          cp ./miniccc ./overlays/miniccc/opt/minimega/bin
-          chmod +x ./overlays/miniccc/opt/minimega/bin/miniccc
-
-      # Build the ubuntu image using phenix
-      - name: ubuntu image build
-        run: |
-          phenix version
-          mkdir ./out
-          phenix image create -O ./overlays/miniccc -T ./scripts/ubuntu,./scripts/ubuntu-user --format qcow2 --release noble -c ubuntu --size 10G
-          phenix image build ubuntu -o ./out -x
-
-      # Optionally upload ubuntu.qc2 as artifact (currently commented out)
-      # - name: upload qc2
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ubuntu.qc2
-      #     path: ./out/ubuntu.qc2
-
-      # Publish the built image to GitHub Container Registry using oras
-      - name: publish package with oras
-        # Only push package if on the default branch (e.g., main)
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)      
-        shell: bash
-        run: |
-          cd ./out
-          oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras push "ghcr.io/${{ github.repository }}/ubuntu.qc2:${GITHUB_SHA:0:7}" ubuntu.qc2
-
-  # Job: Tag and release images after successful builds
-  release:
+  # Job: Tag images after successful builds
+  tag-images:
+    strategy:
+      matrix:
+        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
     # Only run on main branch for scheduled or manual workflow_dispatch events
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-    needs:
-      - build-bennu
-      - build-ubuntu
+    needs: build-images
     runs-on: ubuntu-latest
+    outputs:
+      date: ${{ steps.date.outputs.value }}
     steps:
       # Get current date for tagging
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      # Download built images from artifacts (if uploaded)
-      # Not needed with oras push, but kept for reference
-      # - name: get images from artifacts
-      #   uses: actions/download-artifact@v4.1.8
-      #   with:
-      #     pattern: "*.qc2"
-      #     path: ./images
-      #     merge-multiple: true
-
       # Install oras CLI
-      - name: oras install
-        uses: oras-project/setup-oras@v1
-
+      - uses: oras-project/setup-oras@v1
       # Tag images in the registry with 'latest' and date-based tags
       - name: tag images with date and latest
         run: |
           oras version
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras tag ghcr.io/${{ github.repository }}/bennu.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
-          oras tag ghcr.io/${{ github.repository }}/ubuntu.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
+          oras tag ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
 
+  # Job: Create release successful build
+  release:
+    # Only run on main branch for scheduled or manual workflow_dispatch events
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    needs: tag-images
+    runs-on: ubuntu-latest
+    steps:
       # Create a GitHub release with notes and usage instructions
       - name: create release
         uses: ncipollo/release-action@v1.15.0
         with:
-          name: release-${{ steps.date.outputs.date }}
+          name: release-${{ needs.tag-images.outputs.date }}
           body: |
             Images can be downloaded from the registry using the oras client: https://oras.land/docs/installation
             e.g.:
-            ```
+            ```bash
             oras pull ghcr.io/${{ github.repository }}/bennu.qc2:latest
             ```
             You can view the available image builds from the [Package List](https://github.com/orgs/${{ github.repository_owner }}/packages?repo_name=${{ github.event.repository.name }})
-
-          tag: release-${{ steps.date.outputs.date }}
+          tag: release-${{ needs.tag-images.outputs.date }}
           commit: main
           generateReleaseNotes: true
           makeLatest: true

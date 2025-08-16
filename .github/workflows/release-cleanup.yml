@@ -18,6 +18,9 @@ jobs:
           keep_latest_days: 90
 
   cleanup-old-images:
+    strategy:
+      matrix:
+        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
     name: Delete Untagged Images
     runs-on: ubuntu-latest
     permissions:
@@ -26,6 +29,6 @@ jobs:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           older-than: 90 day
-          packages: sceptre-phenix-images/bennu.qc2,sceptre-phenix-images/ubuntu.qc2
+          packages: sceptre-phenix-images/${{ matrix.build }}.qc2
           keep-n-tagged: 5
           exclude-tags: latest
