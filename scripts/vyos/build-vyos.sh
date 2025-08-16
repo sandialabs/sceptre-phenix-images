@@ -12,7 +12,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CWD=$(pwd)
 
 set -o pipefail # If using pipe in commands, fail for any non-exit 0
-set -o nounset # Error on unset variables
 set -o errexit # Exit immediately if a command exits with a non-zero status
 
 function docker_build() {
@@ -143,10 +142,11 @@ function inject_miniccc() {
 
 # ref: https://forum.vyos.io/t/build-for-qemu-or-vmware/15885/4
 function build_vyos() {
-    usage() { echo -e "\nusage: $0 [-h] [-m <path to miniccc>]"; exit 1; }
-    while getopts "m:h" opt; do
+    usage() { echo -e "\nusage: $0 [-h] [-m <path to miniccc>] [-p <comma-separated list of packages>]"; exit 1; }
+    while getopts "m:p:h" opt; do
         case "$opt" in
             m) MINICCC_PATH=$OPTARG ;;
+            p) PACKAGES=$OPTARG ;;
             h) usage ;;
             \?) echo "invalid option: -$OPTARG" >&2; usage ;;
         esac
@@ -170,6 +170,25 @@ function build_vyos() {
        exit 1
     fi
 
+    # format packages
+    if [ -n "$PACKAGES" ]; then
+        # set IFS to comma to split the string into an array
+        IFS=',' read -r -a elements <<< "$PACKAGES"
+
+        # initialize an empty array to store the formatted elements
+        formatted=()
+
+        # loop through each element, add double quotes, and append a comma and space
+        for element in "${elements[@]}"; do
+            # trim leading/trailing whitespace from the element
+            trimmed=$(echo "$element" | xargs)
+            formatted+=("\"$trimmed\", ") # Add a trailing comma and space
+        done
+
+        # join the formatted elements
+        PACKAGES=$(echo -e "${formatted[@]}")
+    fi
+
     # fetch build files
     cd $CWD
     git clone -b current --single-branch https://github.com/vyos/vyos-build
@@ -183,10 +202,7 @@ function build_vyos() {
     cat << EOF > data/build-flavors/qemu.toml
 build_type = "release"
 image_format = "qcow2"
-packages = [
-    "qemu-guest-agent",
-    "vim"
-]
+packages = [$PACKAGES"qemu-guest-agent", "vim"]
 EOF
 
     # build vyos
