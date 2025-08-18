@@ -50,11 +50,14 @@ dst: /boot/vyos/rw/config/scripts/custom/vyos.script
 
 > [!IMPORTANT]
 > To use the `vyos.qc2` image successfully, you must set the
-> `inject_partition` to `3`. For example, in the phenix topology:
+> `inject_partition` to `3`. Additionally, the memory needs to be at least 2G,
+> and the `os_type` must be `vyos`. For example, in the phenix topology:
 >
 > ```yaml
 > hardware:
 >   drives:
 >     - image: vyos.qc2
 >       inject_partition: 3
+>   memory: 2048
+>   os_type: vyos
 > ```

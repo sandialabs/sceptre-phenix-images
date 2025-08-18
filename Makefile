@@ -54,14 +54,14 @@ noble:
 # Build bennu.qc2			-- Ubuntu Jammy, bennu, brash
 bennu:
 	@$(CHECK_IMAGE)
-	@$(PHENIX) image create -O ./overlays/bennu,./overlays/brash -T ./scripts/atomic/aptly.sh,./scripts/bennu.sh $(COMPRESS) $(@)
+	@$(PHENIX) image create -O $(CURDIR)/overlays/bennu,$(CURDIR)/overlays/brash -T $(CURDIR)/scripts/atomic/aptly.sh,$(CURDIR)/scripts/bennu.sh $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD) $(@)
 	@$(INJECT_MINICCC)
 
 # Build docker-hello-world.qc2	-- Ubuntu Jammy, Docker hello-world
 docker-hello-world:
 	@$(CHECK_IMAGE)
-	@$(PHENIX) image create -T ./scripts/atomic/docker.sh $(COMPRESS) $(@)
+	@$(PHENIX) image create -T $(CURDIR)/scripts/atomic/docker.sh $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD) $(@)
 
 # Build ntp.qc2			-- Ubuntu Jammy, ntpd
@@ -73,10 +73,9 @@ ntp:
 
 # Build vyos.qc2			-- VyOS 1.5
 vyos:
-	@cd ./scripts/vyos/
+	@cd $(CURDIR)/scripts/vyos/
 	@./build-vyos.sh -m $(CURDIR)/miniccc
-	@cd $(CURDIR)
-	@mv ./scripts/vyos/vyos.qc2 ./
+	@mv vyos.qc2 $(CURDIR)
 
 ##
 ## ------------------------------------------ Administration ------------------------------------------
