@@ -23,8 +23,8 @@ VM images can be built by `phenix image` using one of 3 methods:
 First create the image config with optional overlays/scripts, then build it:
 
 ```bash
-phenix image create -T /phenix/vmdb/scripts/nrelcerts.sh,/phenix/vmdb/scripts/foobar.sh -r focal -f qcow2 -c foo
-phenix image build -o /phenix/vmdb -c -x foo
+phenix image create -T ./scripts/foobar.sh -r focal -f qcow2 -c foo
+phenix image build -o . -c -x foo
 ```
 
 ### 2. From a previously-created image config (e.g. `foo.yml`)
@@ -36,8 +36,8 @@ phenix image build -o /phenix/vmdb -c -x foo
 First ingest the config into the phenix database, then build:
 
 ```bash
-phenix cfg create /phenix/vmdb/configs/foo.yml
-phenix image build -o /phenix/vmdb -c -x foo
+phenix cfg create ./configs/foo.yml
+phenix image build -o . -c -x foo
 ```
 
 ### 3. From a previously-created vmdb config (e.g. `foo.vmdb`)
@@ -50,7 +50,7 @@ phenix image build -o /phenix/vmdb -c -x foo
 Build the image directly:
 
 ```bash
-phenix image build -o /phenix/vmdb -c -x /phenix/vmdb/configs/foo.vmdb
+phenix image build -o . -c -x ./configs/foo.vmdb
 ```
 
 ## Pre-Built Images

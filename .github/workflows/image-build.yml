@@ -83,7 +83,7 @@ jobs:
     needs: build-images
     runs-on: ubuntu-latest
     outputs:
-      date: ${{ steps.date.outputs.value }}
+      date: ${{ steps.date.outputs.date }}
     steps:
       # Get current date for tagging
       - name: Get current date
