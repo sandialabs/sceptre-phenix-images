@@ -29,6 +29,6 @@ jobs:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           older-than: 90 day
-          packages: sceptre-phenix-images/${{ matrix.build }}.qc2
+          packages: ${{ github.event.repository.name }}/${{ matrix.build }}.qc2
           keep-n-tagged: 5
           exclude-tags: latest

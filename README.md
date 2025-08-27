@@ -1,5 +1,7 @@
 # Images
 
+[![image-build](https://github.com/sandialabs/sceptre-phenix-images/actions/workflows/image-build.yml/badge.svg)](https://github.com/sandialabs/sceptre-phenix-images/actions/workflows/image-build.yml) [![release-cleanup](https://github.com/sandialabs/sceptre-phenix-images/actions/workflows/release-cleanup.yml/badge.svg)](https://github.com/sandialabs/sceptre-phenix-images/actions/workflows/release-cleanup.yml)
+
 This repository contains configuration files, overlays, and scripts used by
 `phenix image`, a tool used to quickly generate debian-based qcow2 VM images.
 `phenix image` is a wrapper of the [vmdb2](https://vmdb2.liw.fi/) tool which,
