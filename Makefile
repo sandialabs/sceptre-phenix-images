@@ -1,9 +1,9 @@
-.PHONY: help check_clean bookworm kali jammy noble bennu docker-hello-world ntp clean
+.PHONY: help check_clean bookworm kali jammy noble bennu minirouter _minirouter_img docker-hello-world ntp clean
 
 .ONESHELL: # for heredoc and exit
 
 PHENIX=docker exec phenix phenix
-PHENIX_IMAGE_BUILD=$(PHENIX) image build -o . -c -x
+PHENIX_IMAGE_BUILD=$(PHENIX) image build -o $(CURDIR) -c -x
 CHECK_IMAGE=if $(PHENIX) cfg list | grep Image | awk '{print $$6}' | grep "^$(@)$$" >/dev/null; then echo "\n\tphenix image already exists: '$(@)' - run 'phenix image delete $(@)' first\n"; exit; fi
 INJECT_MINICCC=if test -f $(CURDIR)/$(@).qc2; then $(PHENIX) image inject-miniexe $(CURDIR)/miniccc $(CURDIR)/$(@).qc2; echo "----- Injected miniccc into $(@).qc2 -----"; fi
 COMPRESS=-c
@@ -76,6 +76,17 @@ vyos:
 	@cd $(CURDIR)/scripts/vyos/
 	@./build-vyos.sh -m $(CURDIR)/miniccc
 	@mv vyos.qc2 $(CURDIR)
+
+# Build minirouter.qc2 		-- Ubuntu Noble, minirouter
+minirouter: _minirouter_img
+
+_minirouter_img: # use _img to avoid conflict with minirouter binary
+	@$(CHECK_IMAGE)
+	@$(PHENIX) image create --scripts $(CURDIR)/scripts/minirouter.sh -O $(CURDIR)/overlays/minirouter -P dnsmasq,openvswitch-switch,bird,nano,iptables,nftables,isc-dhcp-client,isc-dhcp-common -r noble $(COMPRESS) $(@)
+	@$(PHENIX_IMAGE_BUILD) $(@)
+	@$(INJECT_MINICCC)
+	if test -f $(CURDIR)/$(@).qc2; then $(PHENIX) image inject-miniexe $(CURDIR)/minirouter $(CURDIR)/$(@).qc2; echo "----- Injected minirouter into $(@).qc2 -----"; fi
+	@mv -f $(CURDIR)/$(@).qc2 $(CURDIR)/minirouter.qc2
 
 ##
 ## ------------------------------------------ Administration ------------------------------------------

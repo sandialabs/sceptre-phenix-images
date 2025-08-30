@@ -18,7 +18,18 @@ jobs:
   build-images:
     strategy:
       matrix:
-        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
+        build:
+          [
+            bookworm,
+            kali,
+            jammy,
+            noble,
+            bennu,
+            docker-hello-world,
+            ntp,
+            vyos,
+            minirouter,
+          ]
     runs-on: ubuntu-latest
     steps:
       # Checkout repository code
@@ -31,6 +42,7 @@ jobs:
         with:
           packages: qemu-utils
           version: 1.0
+
       # Pull docker containers
       - name: pull docker containers
         run: |
@@ -38,6 +50,7 @@ jobs:
           docker pull ghcr.io/sandialabs/sceptre-phenix/minimega:main
           docker tag ghcr.io/sandialabs/sceptre-phenix/phenix:main phenix:latest
           docker tag ghcr.io/sandialabs/sceptre-phenix/minimega:main minimega:latest
+
       # Start docker containers
       - name: wget docker-compose.yml
         uses: wei/wget@v1
@@ -50,13 +63,25 @@ jobs:
           docker compose -f docker-compose.yml up -d phenix
           echo "Waiting for services to start..."
           sleep 5
-      # Extract miniccc
-      - name: get miniccc
-        run: docker cp minimega:/opt/minimega/bin/miniccc ./
+
+      # Extract miniccc and minirouter binaries
+      - name: get miniccc and minirouter
+        run: |
+          docker cp minimega:/opt/minimega/bin/miniccc ${{ github.workspace }}
+          docker cp minimega:/opt/minimega/bin/minirouter ${{ github.workspace }}
+
+      # Remove unneeded tools to make more build space
+      - name: free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          # skip the remove large-packages step because it takes a while
+          large-packages: false
+
       # Build the non-vyos images using phenix
       - name: ${{ matrix.build }} image build
         if: ${{ matrix.build != 'vyos' }}
         run: make ${{ matrix.build }}
+
       # Build the vyos image using custom build script
       - name: ${{ matrix.build }} image build
         if: ${{ matrix.build == 'vyos' }}
@@ -64,6 +89,7 @@ jobs:
         run: |
           sudo modprobe nbd
           sudo make ${{ matrix.build }}
+
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras
         # Only push package if on the default branch (e.g., main)
@@ -72,12 +98,24 @@ jobs:
         run: |
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
           oras push "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" ${{ matrix.build }}.qc2
-
+          # tag with branch name
+          oras tag "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" "${GITHUB_REF##*/}"
   # Job: Tag images after successful builds
   tag-images:
     strategy:
       matrix:
-        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
+        build:
+          [
+            bookworm,
+            kali,
+            jammy,
+            noble,
+            bennu,
+            docker-hello-world,
+            ntp,
+            vyos,
+            minirouter,
+          ]
     # Only run on main branch for scheduled or manual workflow_dispatch events
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs: build-images
