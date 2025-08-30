@@ -1,2 +1,8 @@
 .vscode/
 overlays/bennu/*.deb
+*.log
+*.vmdb
+./miniccc
+./minirouter
+*.qc2
+*.tar

@@ -174,3 +174,4 @@ the Makefile are shown below.
 | docker-hello-world | Ubuntu / jammy | Docker | Shows how you can run a service (dockerd) inside the chroot image build environment | :x: |
 | ntp | Ubuntu / jammy | [ntpd](https://linux.die.net/man/8/ntpd) | Network time protocol server | :x: |
 | vyos | VyOS / 1.5 | [VyOS](https://docs.vyos.io/en/latest/) | Open-source enterprise-grade router platform | :x: |
+| minirouter | Ubuntu / noble | miniccc/minirouter | Minimega-based router | :x: |
