@@ -175,3 +175,4 @@ the Makefile are shown below.
 | ntp | Ubuntu / jammy | [ntpd](https://linux.die.net/man/8/ntpd) | Network time protocol server | :x: |
 | vyos | VyOS / 1.5 | [VyOS](https://docs.vyos.io/en/latest/) | Open-source enterprise-grade router platform | :x: |
 | minirouter | Ubuntu / noble | miniccc/minirouter | Minimega-based router | :x: |
+| soaptools | Ubuntu / jammy | filebeat,zeek,msf | preconfigured image for the [soap-hil topology](https://github.com/sandialabs/sceptre-phenix-topologies/tree/main/soap-hil) | :white_check_mark:  |

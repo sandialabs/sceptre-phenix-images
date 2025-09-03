@@ -1,4 +1,4 @@
-.PHONY: help check_clean bookworm kali jammy noble bennu minirouter _minirouter_img docker-hello-world ntp clean
+.PHONY: help check_clean bookworm kali jammy noble bennu minirouter _minirouter_img docker-hello-world ntp ubuntu-soaptools clean
 
 .ONESHELL: # for heredoc and exit
 
@@ -87,6 +87,13 @@ _minirouter_img: # use _img to avoid conflict with minirouter binary
 	@$(INJECT_MINICCC)
 	if test -f $(CURDIR)/$(@).qc2; then $(PHENIX) image inject-miniexe $(CURDIR)/minirouter $(CURDIR)/$(@).qc2; echo "----- Injected minirouter into $(@).qc2 -----"; fi
 	@mv -f $(CURDIR)/$(@).qc2 $(CURDIR)/minirouter.qc2
+
+# Build ubuntu-soaptools.qc2	-- Ubuntu Jammy, soaptools
+ubuntu-soaptools:
+	@$(CHECK_IMAGE)
+	@$(PHENIX) image create -r jammy -v mingui -s 50G -T $(CURDIR)/scripts/atomic/ubuntu-user.sh,$(CURDIR)/scripts/soaptools.sh $(COMPRESS) $(@)
+	@$(PHENIX_IMAGE_BUILD) $(@)
+	@$(INJECT_MINICCC)
 
 ##
 ## ------------------------------------------ Administration ------------------------------------------
