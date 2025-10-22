@@ -11,6 +11,10 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CWD=$(pwd)
 
+# allow setting a specific vyostmp dir in environment
+# used for miniccc injection step
+VYOSTMP=${VYOSTMP:-"$CWD/vyostmp/"}
+
 set -o pipefail # If using pipe in commands, fail for any non-exit 0
 set -o errexit # Exit immediately if a command exits with a non-zero status
 
@@ -25,6 +29,7 @@ COPY <<END inject.sh
 set -o pipefail # If using pipe in commands, fail for any non-exit 0
 set -o nounset # Error on unset variables
 set -o errexit # Exit immediately if a command exits with a non-zero status
+set -x 
 
 FILE=\$(ls vyos-build/build/*.qcow2)
 VERSION=\$(basename \$FILE | cut -d- -f2)
@@ -36,13 +41,15 @@ BOOT_PATH=\$MOUNT/boot
 VERSION_DIR=\$VERSION-rolling-\$DATESTAMP
 SQUASH_PATH=\$BOOT_PATH/vyos
 SQUASHFS=\$VERSION-rolling-\$DATESTAMP.squashfs
-ROOTFS=\$SQUASH_PATH/squashfs-root
+UNPACK_PATH=/scratch
+ROOTFS=\$UNPACK_PATH/squashfs-root
+
 mkdir -p \$MOUNT
 qemu-nbd -c /dev/nbd0 \$FILE
 sleep 3 # settle
 mount /dev/nbd0p3 \$MOUNT
 cd \$BOOT_PATH/\$VERSION_DIR
-unsquashfs \$SQUASHFS
+unsquashfs -dest \$ROOTFS \$SQUASHFS
 cd \$BOOT_PATH
 mv \$VERSION_DIR vyos # rename to work with phenix config injections
 sed -i -e "s/\$VERSION_DIR/vyos/g" grub/grub.cfg.d/vyos-versions/\$VERSION_DIR.cfg # fixup cfg to match ^
@@ -130,10 +137,15 @@ function inject_miniccc() {
     fi
     docker_build
     cp $1 $CWD/miniccc
+    echo ""
+    echo " ---- Injecting miniccc ---- "
+    echo ""
+    echo "Using temp dir: $VYOSTMP"
     docker run --rm \
         -v /dev:/dev \
         -v /lib/modules:/lib/modules \
         -v $CWD:/root \
+        -v ${VYOSTMP}:/scratch \
         -w /root --privileged --cap-add=ALL \
         inject-miniccc /root/miniccc
     rm $CWD/miniccc
@@ -212,7 +224,7 @@ EOF
         -v $CWD/vyos-build:/root \
         -w /root --privileged \
         -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
-        vyos/vyos-build:current \
+        ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:current \
         bash -c "sudo make -j$(nproc) qemu"
 
     if [ -f "$MINICCC_PATH" ]; then

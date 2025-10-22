@@ -86,12 +86,14 @@ jobs:
         run: make ${{ matrix.build }}
 
       # Build the vyos image using custom build script
+      # Using /mnt for more temp space for injecting miniccc
       - name: ${{ matrix.build }} image build
         if: ${{ matrix.build == 'vyos' }}
         shell: bash
         run: |
           sudo modprobe nbd
-          sudo make ${{ matrix.build }}
+          export VYOSTMP=/mnt/vyostmp
+          sudo -E make ${{ matrix.build }}
 
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras

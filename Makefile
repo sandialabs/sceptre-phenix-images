@@ -7,6 +7,9 @@ PHENIX_IMAGE_BUILD=$(PHENIX) image build -o $(CURDIR) -c -x
 CHECK_IMAGE=if $(PHENIX) cfg list | grep Image | awk '{print $$6}' | grep "^$(@)$$" >/dev/null; then echo "\n\tphenix image already exists: '$(@)' - run 'phenix image delete $(@)' first\n"; exit; fi
 INJECT_MINICCC=if test -f $(CURDIR)/$(@).qc2; then $(PHENIX) image inject-miniexe $(CURDIR)/miniccc $(CURDIR)/$(@).qc2; echo "----- Injected miniccc into $(@).qc2 -----"; fi
 COMPRESS=-c
+# tmp dir with plenty of space to use for vyos miniccc injection
+# override with env var if needed
+VYOSTMP?=$(CURDIR)/vyostmp/
 
 # Show this help
 help:
@@ -74,7 +77,7 @@ ntp:
 # Build vyos.qc2			-- VyOS 1.5
 vyos:
 	@cd $(CURDIR)/scripts/vyos/
-	@./build-vyos.sh -m $(CURDIR)/miniccc
+	@VYOSTMP=$(VYOSTMP) ./build-vyos.sh -m $(CURDIR)/miniccc
 	@mv vyos.qc2 $(CURDIR)
 
 # Build minirouter.qc2 		-- Ubuntu Noble, minirouter
