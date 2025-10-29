@@ -4,9 +4,9 @@ export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# TODO: this should be UTC
-# ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
-ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
+# Set default timezone
+ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
+# ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
 
