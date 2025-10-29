@@ -11,15 +11,15 @@ ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
 
 # man pages. They only add ~10-20MB to the image size.
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db  manpages-dev
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db manpages-dev
 
 # NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
 # However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
 # NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" libzmq5-dev bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-ipython socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0 unzip
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" libzmq5-dev bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-ipython socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0 unzip libssl3
 apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
-# apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" bennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-dev python3-ipython socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0 unzip
+# If installing a custom pybennu deb, remove "pybennu" from the apt-get install line above, and uncomment the two lines below
 # apt-get install -y --no-install-recommends cmake gcc g++ build-essential make libunwind-dev libunwind8
 # apt-get install -y /pybennu.deb
 
