@@ -62,9 +62,23 @@ echo "root:SiaSd3te" | chpasswd
 adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login || true
 echo "sceptre:sceptre" | chpasswd
 
+# The ntp phenix app assumes ntpd, can't differentate when to use timesyncd
+# Therefore, for compatibility use the "old" way of ntpd instead.
 # https://serverfault.com/a/1016367
 systemctl disable systemd-timesyncd
 systemctl enable ntp
+
+# Aliases for common pybennu commands
+cat << EOF >> "/root/.bash_aliases"
+alias prun='pybennu-power-solver start'
+alias pstart='pybennu-power-solver start -d'
+alias pstop='pybennu-power-solver stop'
+alias prestart='pybennu-power-solver restart -d'
+alias plogs='tail -f /var/log/bennu-pybennu.*'
+alias preset='pybennu-power-solver stop;rm -f /var/log/bennu-pybennu.*'
+alias pconf='vim /etc/sceptre/config.ini'
+alias pyconf='vim /etc/sceptre/*.yaml'
+EOF
 
 # Ensure /etc is owned by root
 # This fixes funkyness if overlay files on the host running the build aren't owned by root
