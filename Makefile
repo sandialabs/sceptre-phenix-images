@@ -32,7 +32,7 @@ bookworm:
 # Build kali.qc2		-- Kali, GUI
 kali:
 	@$(CHECK_IMAGE)
-	@$(PHENIX) image create -P kali-tools-top10 -r kali-rolling -v mingui -s 20G $(COMPRESS) $(@)
+	@$(PHENIX) image create -P kali-tools-top10 -r kali-rolling -v mingui -s 80G $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD) $(@)
 	@$(INJECT_MINICCC)
 
