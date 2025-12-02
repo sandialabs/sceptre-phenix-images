@@ -20,7 +20,7 @@ jobs:
   cleanup-old-images:
     strategy:
       matrix:
-        build: [bookworm, kali, jammy, noble, bennu, docker-hello-world, ntp, vyos]
+        build: [bookworm, kali, kali-harmonie, jammy, noble, bennu, docker-hello-world, ntp, vyos]
     name: Delete Untagged Images
     runs-on: ubuntu-latest
     permissions:

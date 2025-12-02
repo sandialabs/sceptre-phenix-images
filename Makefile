@@ -1,4 +1,4 @@
-.PHONY: help check_clean bookworm kali jammy noble bennu minirouter _minirouter_img docker-hello-world ntp ubuntu-soaptools clean
+.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp ubuntu-soaptools clean
 
 .ONESHELL: # for heredoc and exit
 
@@ -33,6 +33,13 @@ bookworm:
 kali:
 	@$(CHECK_IMAGE)
 	@$(PHENIX) image create -P kali-tools-top10 -r kali-rolling -v mingui -s 80G $(COMPRESS) $(@)
+	@$(PHENIX_IMAGE_BUILD) $(@)
+	@$(INJECT_MINICCC)
+
+# Build kali-harmonie.qc2	-- Kali for HARMONIE-SPS LDRD, GUI
+kali-harmonie:
+	@$(CHECK_IMAGE)
+	@$(PHENIX) image create -l main,non-free,contrib -r kali-rolling -v minbase -s 50G $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD) $(@)
 	@$(INJECT_MINICCC)
 
