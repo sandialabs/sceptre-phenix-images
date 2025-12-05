@@ -4,24 +4,48 @@ export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set default timezone
+# TODO: delete aptly (internal) and aptly.sh (oss)? no longer needed?
+
+# Set default timezone to UTC
 ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 # ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils
+apt-get update
+
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" apt-utils apt-transport-https
 
 # man pages. They only add ~10-20MB to the image size.
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" man-db manpages-dev
 
 # NOTE: the phenix ntp app by default will configure ntp on clients by injecting /etc/ntp.conf
-# However, ntp isn't installed by default anymore on bennu. Therefore, we install it here.
-# NOTE: bennu and pybennu come from apt.sceptre.dev, which is built from the GitHub Action (CI pipeline)
-apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" libzmq5-dev bennu pybennu collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-ipython socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0 unzip libssl3
-apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+# However, ntp isn't installed by default anymore on ubuntu. Therefore, we install it here.
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" libzmq5-dev collectd ftp pv python3 python3-pip python3-setuptools python3-twisted python3-wheel python3-ipython socat tcpdump tmux telnet vsftpd wget git nano vim jq ntp ca-certificates libusb-1.0-0 unzip libssl3 python3-dev cmake ninja-build libboost-dev
 
-# If installing a custom pybennu deb, remove "pybennu" from the apt-get install line above, and uncomment the two lines below
-# apt-get install -y --no-install-recommends cmake gcc g++ build-essential make libunwind-dev libunwind8
-# apt-get install -y /pybennu.deb
+# Install build dependencies to aid development. If a smaller image is needed, comment out this line.
+apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" gcc g++ build-essential make libunwind-dev libunwind8
+
+# NOTE: bennu and pybennu come from GitHub releases which are built by GitHub Actions (CI/CD pipeline)
+# Install helics and libzmq for pybennu
+wget https://github.com/sandialabs/sceptre-bennu/releases/latest/download/helics_3.6.1-1_amd64.deb -O /tmp/helics.deb
+apt-get install -y /tmp/helics.deb
+rm -f /tmp/helics.deb
+
+wget https://github.com/sandialabs/sceptre-bennu/releases/latest/download/libzmq_4.3.4-1_amd64.deb -O /tmp/libzmq.deb
+apt-get install -y /tmp/libzmq.deb
+rm -f /tmp/libzmq.deb
+
+# bennu (C++)
+wget https://github.com/sandialabs/sceptre-bennu/releases/latest/download/bennu.deb -O /tmp/bennu.deb
+apt-get install -y /tmp/bennu.deb
+rm -f /tmp/bennu.deb
+
+# pybennu (Python)
+wget https://github.com/sandialabs/sceptre-bennu/releases/latest/download/pybennu-6.0.0-py3-none-any.whl -O /tmp/pybennu-6.0.0-py3-none-any.whl
+pip install /tmp/pybennu-6.0.0-py3-none-any.whl
+rm -f /tmp/pybennu-6.0.0-py3-none-any.whl
+
+# Cleanup
+apt-get autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
 # install labjack libraries for pybennu-siren
 # NOTE: pushd/popd cannot be used here due to the fact this isn't bash

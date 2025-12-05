@@ -11,12 +11,12 @@ deb [arch=amd64 trusted=yes] http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAM
 EOF
 
 apt-get update
-apt-get install -y ca-certificates apt-transport-https
-apt-get clean
+# apt-get install -y ca-certificates apt-transport-https
+# apt-get clean
 
-mkdir -p /etc/apt/sources.list.d/
-cat <<EOF >> /etc/apt/sources.list.d/aptly.list
-deb [arch=amd64 trusted=yes] https://apt.sceptre.dev /
-EOF
+# mkdir -p /etc/apt/sources.list.d/
+# cat <<EOF >> /etc/apt/sources.list.d/aptly.list
+# deb [arch=amd64 trusted=yes] https://apt.sceptre.dev /
+# EOF
 
-apt-get update
+# apt-get update
