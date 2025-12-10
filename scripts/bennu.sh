@@ -4,7 +4,14 @@ export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# TODO: delete aptly (internal) and aptly.sh (oss)? no longer needed?
+export UBUNTU_MIRROR=${UBUNTU_MIRROR:-"http://archive.ubuntu.com/ubuntu/"}
+mv /etc/apt/sources.list /etc/apt/sources.list_backup
+. /etc/os-release
+cat <<EOF >> /etc/apt/sources.list
+deb [arch=amd64 trusted=yes] ${UBUNTU_MIRROR} ${VERSION_CODENAME} main restricted universe multiverse
+deb [arch=amd64 trusted=yes] ${UBUNTU_MIRROR} ${VERSION_CODENAME}-updates main restricted universe multiverse
+deb [arch=amd64 trusted=yes] ${UBUNTU_MIRROR} ${VERSION_CODENAME}-security main restricted universe multiverse
+EOF
 
 # Set default timezone to UTC
 ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime

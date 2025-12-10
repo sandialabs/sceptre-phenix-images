@@ -67,7 +67,7 @@ noble:
 # Build bennu.qc2			-- Ubuntu Jammy, bennu, brash
 bennu:
 	@$(CHECK_IMAGE)
-	@$(PHENIX) image create -O $(CURDIR)/overlays/bennu,$(CURDIR)/overlays/brash -T $(CURDIR)/scripts/atomic/aptly.sh,$(CURDIR)/scripts/bennu.sh $(UBUNTU_MIRROR) $(COMPRESS) $(@)
+	@$(PHENIX) image create -O $(CURDIR)/overlays/bennu,$(CURDIR)/overlays/brash -T $(CURDIR)/scripts/bennu.sh $(UBUNTU_MIRROR) $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD) $(@)
 	@$(INJECT_MINICCC)
 
