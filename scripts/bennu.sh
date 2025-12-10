@@ -24,6 +24,10 @@ apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" 
 # Install build dependencies to aid development. If a smaller image is needed, comment out this line.
 apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" gcc g++ build-essential make libunwind-dev libunwind8
 
+PREFIX=${PREFIX:-/usr/local}
+export ZMQ_PREFIX=${PREFIX}
+export ZMQ_DRAFT_API=1
+
 # NOTE: bennu and pybennu come from GitHub releases which are built by GitHub Actions (CI/CD pipeline)
 # Install helics and libzmq for pybennu
 wget https://github.com/sandialabs/sceptre-bennu/releases/latest/download/helics_3.6.1-1_amd64.deb -O /tmp/helics.deb
