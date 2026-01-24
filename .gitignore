@@ -2,7 +2,9 @@
 overlays/bennu/*.deb
 *.log
 *.vmdb
-./miniccc
-./minirouter
+miniccc
+minirouter
 *.qc2
 *.tar
+vyostmp
+scripts/vyos/vyos-build

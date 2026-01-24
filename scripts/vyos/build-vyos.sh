@@ -39,7 +39,6 @@ DATESTAMP=\$(basename \$FILE | cut -d- -f4)
 MOUNT=/tmp/mount
 BOOT_PATH=\$MOUNT/boot
 VERSION_DIR=\$VERSION-rolling-\$DATESTAMP
-SQUASH_PATH=\$BOOT_PATH/vyos
 SQUASHFS=\$VERSION-rolling-\$DATESTAMP.squashfs
 UNPACK_PATH=/scratch
 ROOTFS=\$UNPACK_PATH/squashfs-root
@@ -50,10 +49,6 @@ sleep 3 # settle
 mount /dev/nbd0p3 \$MOUNT
 cd \$BOOT_PATH/\$VERSION_DIR
 unsquashfs -dest \$ROOTFS \$SQUASHFS
-cd \$BOOT_PATH
-mv \$VERSION_DIR vyos # rename to work with phenix config injections
-sed -i -e "s/\$VERSION_DIR/vyos/g" grub/grub.cfg.d/vyos-versions/\$VERSION_DIR.cfg # fixup cfg to match ^
-cd \$SQUASH_PATH
 rm \$SQUASHFS # old fs
 
 # branding
@@ -94,24 +89,25 @@ ln -s /etc/systemd/system/miniccc.service \$ROOTFS/etc/systemd/system/multi-user
 # add main startup script
 tee \$ROOTFS/opt/vyatta/etc/config/scripts/vyos-postconfig-bootup.script <<-'EOF'
 #!/bin/sh
-for file in /config/scripts/custom/*; do
-  echo \$file
-  chmod +x \$file
-  sg vyattacfg -c \$file
-done
-EOF
+DIR=/usr/lib/live/mount/persistence/boot/vyos/rw/config/scripts/custom
+FLAG="\$DIR/phenix-run-flag"
 
-# add initial custom startup script
-mkdir -p \$ROOTFS/opt/vyatta/etc/config/scripts/custom
-tee \$ROOTFS/opt/vyatta/etc/config/scripts/custom/vyos.script <<-'EOF'
-#!/bin/vbash
-source /opt/vyatta/etc/functions/script-template
-configure
-set interface ethernet eth0 address dhcp
-set service ssh
-commit
-save
-exit
+if [ ! -d "\$DIR" ]; then
+  echo "no phenix startup directory found, skipping"
+  exit 0
+fi
+if [ -f "\$FLAG" ]; then
+  echo "phenix startup previously run, skipping"
+  exit 0
+fi
+
+for file in "\$DIR"/*.script; do
+  [ -f "\$file" ] || continue
+  echo "\$file"
+  chmod +x "\$file"
+  sg vyattacfg -c "\$file"
+done
+echo "phenix startup completed" | tee "\$FLAG"
 EOF
 
 # cleanup
