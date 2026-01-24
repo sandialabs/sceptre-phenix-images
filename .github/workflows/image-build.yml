@@ -42,10 +42,10 @@ jobs:
       - uses: oras-project/setup-oras@v1
       - uses: docker/setup-docker-action@v4
       - uses: docker/setup-compose-action@v1
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: qemu-utils
-          version: 1.0
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y qemu-utils guestfs-tools
 
       # Pull docker containers
       - name: pull docker containers

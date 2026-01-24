@@ -88,7 +88,13 @@ ntp:
 vyos:
 	@cd $(CURDIR)/scripts/vyos/
 	@VYOSTMP=$(VYOSTMP) ./build-vyos.sh -m $(CURDIR)/miniccc
-	@mv vyos.qc2 $(CURDIR)
+	@if command -v virt-sparsify >/dev/null 2>&1; then \
+		echo "virt-sparsify found — creating sparse copy to $(CURDIR)/vyos.qc2"; \
+		sudo virt-sparsify vyos.qc2 $(CURDIR)/vyos.qc2 && rm -f vyos.qc2 || { echo "virt-sparsify failed — falling back to move"; mv vyos.qc2 $(CURDIR); }; \
+	else \
+		echo "virt-sparsify not found — not sparsifying, moving vyos.qc2"; \
+		mv vyos.qc2 $(CURDIR); \
+	fi
 
 # Build minirouter.qc2 		-- Ubuntu Noble, minirouter
 minirouter: _minirouter_img
