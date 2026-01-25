@@ -91,23 +91,49 @@ tee \$ROOTFS/opt/vyatta/etc/config/scripts/vyos-postconfig-bootup.script <<-'EOF
 #!/bin/sh
 DIR=/usr/lib/live/mount/persistence/boot/vyos/rw/config/scripts/custom
 FLAG="\$DIR/phenix-run-flag"
+DEFAULT_SCRIPT=/opt/vyatta/etc/config/scripts/custom/vyos.script
 
-if [ ! -d "\$DIR" ]; then
-  echo "no phenix startup directory found, skipping"
-  exit 0
-fi
+# ensure custom script dir exists 
+mkdir -p "\$DIR"
+
+# exit if already ran so setting aren't overwritten on reboot
 if [ -f "\$FLAG" ]; then
-  echo "phenix startup previously run, skipping"
+  echo "phenix startup previously ran, skipping"
   exit 0
 fi
 
+# check if any custom scripts exist
+has_custom_scripts=false
 for file in "\$DIR"/*.script; do
-  [ -f "\$file" ] || continue
-  echo "\$file"
-  chmod +x "\$file"
-  sg vyattacfg -c "\$file"
+  if [ -f "\$file" ]; then
+    has_custom_scripts=true
+    echo "\$file"
+    chmod +x "\$file"
+    sg vyattacfg -c "\$file"
+  fi
 done
+
+# if no custom scripts were found, run the default script
+if [ "\$has_custom_scripts" = false ] && [ -f "\$DEFAULT_SCRIPT" ]; then
+  echo "No custom startup scripts found, running default startup: \$DEFAULT_SCRIPT"
+  chmod +x "\$DEFAULT_SCRIPT"
+  sg vyattacfg -c "\$DEFAULT_SCRIPT"
+fi
+
 echo "phenix startup completed" | tee "\$FLAG"
+EOF
+
+# add initial custom startup script
+mkdir -p \$ROOTFS/opt/vyatta/etc/config/scripts/custom
+tee \$ROOTFS/opt/vyatta/etc/config/scripts/custom/vyos.script <<-'EOF'
+#!/bin/vbash
+source /opt/vyatta/etc/functions/script-template
+configure
+set interface ethernet eth0 address dhcp
+set service ssh
+commit
+save
+exit
 EOF
 
 # cleanup
