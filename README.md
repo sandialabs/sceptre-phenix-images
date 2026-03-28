@@ -177,3 +177,4 @@ the Makefile are shown below.
 | minirouter | Ubuntu / noble | miniccc/minirouter | Minimega-based router | :x: |
 | soaptools | Ubuntu / jammy | filebeat,zeek,msf | preconfigured image for the [soap-hil topology](https://github.com/sandialabs/sceptre-phenix-topologies/tree/main/soap-hil) | :white_check_mark:  |
 | kali-harmonie | Kali / kali-rolling | Scapy, pybind11, HELICS, pyOpenDNP3, elasticsearch-py | Kali Linux image for the HARMONIE-SPS LDRD. | :white_check_mark: |
+| OT-Sim | Ubuntu / focal | OT-Sim, PandaPower, pyOpenDNP3, HELICS | Ubuntu image for OT-SIM and Panda Power projects | :x: |
