@@ -1,4 +1,4 @@
-.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp ubuntu-soaptools clean ot-sim
+.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp ubuntu-soaptools clean ot-sim lint install-dev
 
 .ONESHELL: # for heredoc and exit
 
@@ -130,3 +130,17 @@ ubuntu-soaptools:
 clean: check_clean
 	@echo "Deleting *.log *.qc2 *.tar *.vmdb..."
 	rm -f *.log *.qc2 *.tar *.vmdb
+
+##
+## ------------------------------------------ Linting ------------------------------------------
+##
+
+# Run all prek hooks across the whole repository
+lint:
+	@command -v prek > /dev/null || { echo "Error: 'prek' not found. Run 'make install-dev' first."; exit 1; }
+	prek run --all-files
+
+# Install local dev tooling (prek) and register git pre-commit hooks
+install-dev:
+	@command -v prek > /dev/null || pip install 'prek>=0.4.3'
+	prek install

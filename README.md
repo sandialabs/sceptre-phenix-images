@@ -178,3 +178,23 @@ the Makefile are shown below.
 | soaptools | Ubuntu / jammy | filebeat,zeek,msf | preconfigured image for the [soap-hil topology](https://github.com/sandialabs/sceptre-phenix-topologies/tree/main/soap-hil) | :white_check_mark:  |
 | kali-harmonie | Kali / kali-rolling | Scapy, pybind11, HELICS, pyOpenDNP3, elasticsearch-py | Kali Linux image for the HARMONIE-SPS LDRD. | :white_check_mark: |
 | OT-Sim | Ubuntu / focal | OT-Sim, PandaPower, pyOpenDNP3, HELICS | Ubuntu image for OT-SIM and Panda Power projects | :x: |
+
+## Contributing
+
+This repository uses [prek](https://prek.j178.dev/) (a Rust drop-in alternative to `pre-commit`) to enforce repository-wide checks (shell linting, YAML linting, spell-checking, conventional commit messages, and general hygiene). The same checks run in CI via the [Lint workflow](.github/workflows/lint.yml).
+
+Install the dev tooling and register the git pre-commit hooks once:
+
+```bash
+make install-dev
+```
+
+Run all hooks against every file manually:
+
+```bash
+make lint
+# or, equivalently
+prek run --all-files
+```
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for additional contribution guidelines.

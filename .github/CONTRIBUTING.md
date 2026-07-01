@@ -11,6 +11,7 @@ Thank you for your interest in contributing to SCEPTRE Phenix Images! We welcome
   - [Reporting Issues](#reporting-issues)
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Submitting Code](#submitting-code)
+- [Code Quality](#code-quality)
 - [License](#license)
 
 ## Getting Started
@@ -133,6 +134,24 @@ We welcome suggestions for improvements! Please open an issue to discuss your id
     ```
 
 6. **Open a Pull Request**: Go to the original repository and open a [pull request](https://github.com/sandialabs/sceptre-phenix-images/pulls). Provide a clear description of your changes and reference any related issues.
+
+## Code Quality
+
+This project uses [prek](https://prek.j178.dev/) (a Rust drop-in alternative to `pre-commit`) to enforce repository-wide checks (shell linting, YAML linting, spell-checking, conventional commit validation, and general hygiene). The same checks run in CI via the [Lint workflow](workflows/lint.yml).
+
+Install the dev tooling and register git pre-commit hooks once:
+
+```bash
+make install-dev
+```
+
+Run every hook against every file manually:
+
+```bash
+make lint
+# or, equivalently
+prek run --all-files
+```
 
 ## License
 By contributing to this project, you agree that your contributions will be licensed under the [GNU](https://github.com/sandialabs/sceptre-phenix-images/blob/main/LICENSE) License.
