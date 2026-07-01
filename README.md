@@ -19,6 +19,7 @@ to the `vmdb2` tool inside the phenix container and used to build the image.
 VM images can be built by `phenix image` using one of 3 methods:
 
 ### 1. From scratch
+
 > [!IMPORTANT]
 > This is the normal method for building images
 
@@ -30,6 +31,7 @@ phenix image build -o . -c -x foo
 ```
 
 ### 2. From a previously-created image config (e.g. `foo.yml`)
+
 > [!NOTE]
 > This can be useful when moving image configs to different locations.
 > You can extract an image config from the phenix datastore using
@@ -43,6 +45,7 @@ phenix image build -o . -c -x foo
 ```
 
 ### 3. From a previously-created vmdb config (e.g. `foo.vmdb`)
+
 > [!NOTE]
 > This can be useful if you need to edit the .vmdb config manually
 > because the image .vmdb template doesn't have what you need. An
@@ -56,6 +59,7 @@ phenix image build -o . -c -x ./configs/foo.vmdb
 ```
 
 ## Pre-Built Images
+
 Pre-built qcow2 images are available as
 [Packages](https://github.com/orgs/sandialabs/packages?repo_name=sceptre-phenix-images).
 They are stored in OCI registry format (due to size constraints) and require
@@ -78,7 +82,7 @@ oras pull ghcr.io/sandialabs/sceptre-phenix-images/bennu.qc2:latest
 ## Default packages
 
 Inside the
-[core phenix code](https://github.com/sandialabs/sceptre-phenix/blob/main/src/go/api/image/constants.go#L96),
+[core phenix code](https://github.com/sandialabs/sceptre-phenix/blob/7dbc8d8f49005499fa01a87569539050251e5c6c/src/go/api/image/constants.go#L149),
 some default packages are automatically added to the packages list for
 installation via apt:
 
@@ -115,7 +119,7 @@ arguments:
     | locales             |                     |                       |
 
 - For the `mingui` variant, if the release matches the following
-  distributions, the correpsonding packages are added:
+  distributions, the corresponding packages are added:
 
     | **_Debian_**   | **_Kali_**        | **_Ubuntu_**    |
     | -------------- | ----------------- | --------------- |
@@ -127,9 +131,10 @@ arguments:
 ---
 
 ## Makefile
+
 A Makefile is included that has recipes for example vanilla images and other
 common images. Run `make` by itself to see a list of targets and
-short decriptions. For each target, the Makefile first checks if the image
+short descriptions. For each target, the Makefile first checks if the image
 already exists in the phenix database. If the image already exists, the
 recipe will not continue. To fix this, first delete the existing image by
 running `phenix image delete <target>`, then retry the `make <target>` command.

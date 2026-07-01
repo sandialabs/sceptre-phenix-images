@@ -1,10 +1,12 @@
+#!/bin/sh
+
 set -ex
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 
-export UBUNTU_MIRROR=${UBUNTU_MIRROR:-"http://archive.ubuntu.com/ubuntu/"}
+export UBUNTU_MIRROR="${UBUNTU_MIRROR:-"http://archive.ubuntu.com/ubuntu/"}"
 mv /etc/apt/sources.list /etc/apt/sources.list_backup
 . /etc/os-release
 cat <<EOF >> /etc/apt/sources.list

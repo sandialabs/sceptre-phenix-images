@@ -1,3 +1,4 @@
+#!/bin/sh
 # phenix image build script for a customized Kali Linux image for the HARMONIE-SPS LDRD
 
 set -x

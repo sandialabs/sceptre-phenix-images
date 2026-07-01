@@ -1,4 +1,4 @@
-Contributing to SCEPTRE Phenix Images
+# Contributing to SCEPTRE Phenix Images
 
 Thank you for your interest in contributing to SCEPTRE Phenix Images! We welcome contributions from everyone and appreciate your efforts to improve our project. This guide will help you understand how to contribute effectively.
 
@@ -101,7 +101,7 @@ We welcome suggestions for improvements! Please open an issue to discuss your id
     ```bash
     git commit -m "feat(auth): add user authentication feature"
     ```
-    If you need to write a longer commit message, you can do so by running `git commit`. This will open your default text editor where you can write a detailed commit message. The first line should be a brief summary conforming to the format above, followed by a blank line, and then a more detailed explanation. 
+    If you need to write a longer commit message, you can do so by running `git commit`. This will open your default text editor where you can write a detailed commit message. The first line should be a brief summary conforming to the format above, followed by a blank line, and then a more detailed explanation.
 
     Example:
     ```bash
@@ -109,7 +109,6 @@ We welcome suggestions for improvements! Please open an issue to discuss your id
 
     This commit introduces a new authentication system that allows users to log in using their email and password. It also includes validation for user input and error handling.
     ```
-
 
 4. **Rebase Your Branch**: Before opening a pull request, ensure your branch is up to date with the main branch.
     * Fetch the latest changes from the upstream repository.
@@ -154,5 +153,5 @@ prek run --all-files
 ```
 
 ## License
-By contributing to this project, you agree that your contributions will be licensed under the [GNU](https://github.com/sandialabs/sceptre-phenix-images/blob/main/LICENSE) License.
 
+By contributing to this project, you agree that your contributions will be licensed under the [GNU](https://github.com/sandialabs/sceptre-phenix-images/blob/main/LICENSE) License.
