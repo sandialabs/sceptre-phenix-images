@@ -1,0 +1,27 @@
+extends: default
+
+rules:
+  document-start: disable
+  document-end: disable
+  indentation:
+    indent-sequences: consistent
+    spaces: 2
+  line-length:
+    max: 160
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+    ignore: |
+      .github/workflows/
+      overlays/
+      build/
+  brackets:
+    max-spaces-inside: 1
+  braces:
+    max-spaces-inside: 1
+  comments:
+    min-spaces-from-content: 1
+  truthy:
+    check-keys: false
+  octal-values:
+    forbid-explicit-octal: true
+    forbid-implicit-octal: true

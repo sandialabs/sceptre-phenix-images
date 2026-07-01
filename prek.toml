@@ -1,0 +1,193 @@
+# Configuration file for `prek`, a git hook framework written in Rust.
+# See https://prek.j178.dev for more information.
+# Run manually: prek run --all-files
+#:schema https://www.schemastore.org/prek.json
+
+auto_update.cooldown_days = 30
+minimum_prek_version = "0.4.3"
+default_language_version.python = "3.12"
+
+# All hooks at the same priority level will run *concurrently* (in parallel),
+# and hooks with a lower priority will run before hooks with a higher priority.
+# See: https://prek.j178.dev/proposals/concurrency
+#
+# This repository contains VM image build scripts (mostly Bash), filesystem
+# overlays, vmdb2 configs, and helper YAML. We focus on shell linting,
+# spell-checking, YAML linting, and general hygiene.
+
+# Linting of GitHub Actions workflows for security issues
+# https://docs.zizmor.sh/audits/
+[[repos]]
+repo = "https://github.com/zizmorcore/zizmor-pre-commit"
+rev = "v1.26.1"
+
+[[repos.hooks]]
+id = "zizmor"
+args = [
+    "--no-progress",
+    "--fix"
+]
+
+# Spell checking
+[[repos]]
+repo = "https://github.com/codespell-project/codespell"
+rev = "v2.4.2"
+
+[[repos.hooks]]
+id = "codespell"
+args = [
+  "--ignore-words-list",
+  "ue,ot,ues,fo,nd,ist,te,iif,iam,parm,parms,ser,bord,nin,bootup,ans,hda",
+  # Overlays often contain vendored configs, motd banners, etc. that we don't own.
+  "--skip",
+  "*.svg,*.qc2,*.tar,*.zip,*.deb,overlays/**/etc/motd,overlays/**/usr/share/**,build/**,vyostmp/**"
+]
+priority = 2
+
+
+# Shell: ShellCheck (checks shell scripts for common issues)
+# Most build scripts are run inside the phenix Docker container and
+# legitimately source files at runtime.
+[[repos]]
+repo = "https://github.com/shellcheck-py/shellcheck-py"
+rev = "v0.11.0.1"
+
+[[repos.hooks]]
+id = "shellcheck"
+args = [
+    "--severity=warning",
+    "--exclude=SC1090,SC1091,SC2086,SC2034,SC2154,SC2009"
+]
+exclude = '^(scripts/atomic/proxy.sh)'
+priority = 2
+
+
+# YAML: yamllint
+[[repos]]
+repo = "https://github.com/adrienverge/yamllint.git"
+rev = "v1.29.0"
+
+[[repos.hooks]]
+id = "yamllint"
+args = [
+    "--strict",
+    "--config-file=.yamllint.yml"
+]
+priority = 2
+
+
+# Enforce conventional commit messages
+[[repos]]
+repo = "https://github.com/compilerla/conventional-pre-commit"
+rev = "v4.4.0"
+
+[[repos.hooks]]
+id = "conventional-pre-commit"
+stages = ["commit-msg"]
+args = [
+  "feat",
+  "fix",
+  "docs",
+  "style",
+  "refactor",
+  "test",
+  "chore"
+]
+priority = 1
+
+
+# General checks built into prek
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+args = ["--markdown-linebreak-ext=md"]
+types_or = [
+  "markdown",
+  "yaml",
+  "json",
+  "shell"
+]
+exclude = '^(overlays/|build/|vyostmp/)'
+priority = 0
+
+[[repos.hooks]]
+# NOTE: only looks at files staged for commit, and ignores LFS-tracked files
+id = "check-added-large-files"
+# 4MB, arbitrary limit, but should be enough for most config files and scripts
+args = ["--maxkb=4096"]
+priority = 1
+
+[[repos.hooks]]
+id = "check-case-conflict"
+priority = 1
+
+[[repos.hooks]]
+id = "check-illegal-windows-names"
+priority = 1
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+types_or = [
+  "markdown",
+  "shell"
+]
+exclude = '^(overlays/|build/|vyostmp/)'
+priority = 0
+
+[[repos.hooks]]
+id = "fix-byte-order-marker"
+priority = 0
+
+[[repos.hooks]]
+id = "check-yaml"
+priority = 1
+
+[[repos.hooks]]
+id = "check-json"
+priority = 1
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+priority = 1
+
+[[repos.hooks]]
+id = "check-executables-have-shebangs"
+priority = 1
+
+[[repos.hooks]]
+id = "check-shebang-scripts-are-executable"
+priority = 1
+
+[[repos.hooks]]
+id = "check-symlinks"
+priority = 1
+
+[[repos.hooks]]
+id = "check-toml"
+priority = 1
+
+[[repos.hooks]]
+id = "mixed-line-ending"
+args = ["--fix=no"]
+priority = 0
+
+[[repos.hooks]]
+id = "check-vcs-permalinks"
+description = "Ensures that links to vcs websites are permalinks"
+priority = 1
+
+[[repos.hooks]]
+id = "no-commit-to-branch"
+name = "branch name validation"
+description = "Prevent committing to 'main', 'master', or any branch that aren't kebab-case (only allows letters, numbers, and hyphens)"
+args = [
+  "--branch",
+  "main",
+  "--branch",
+  "master",
+  "--pattern",
+  '.*[^\w-].*'
+]
+priority = 1
