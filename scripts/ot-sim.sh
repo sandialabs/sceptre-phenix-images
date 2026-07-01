@@ -1,3 +1,5 @@
+#!/bin/sh
+
 set -ex
 
 export LC_ALL=C
@@ -26,7 +28,7 @@ git clone https://github.com/patsec/ot-sim.git
 cd /opt/ot-sim
 
 # Compile OT Sim
-cmake -S . -B build && sudo cmake --build build -j$(nproc) --target install && sudo ldconfig && sudo make -C src/go install
+cmake -S . -B build && sudo cmake --build build -j"$(nproc)" --target install && sudo ldconfig && sudo make -C src/go install
 
 # Compile OT Sim Python
 sudo python3 -m pip install src/python

@@ -1,3 +1,4 @@
+#!/bin/sh
 ##############################################################################
 # INSTALLS:
 #   [ Docker ]
@@ -7,7 +8,7 @@
 ##############################################################################
 # --------------------------------------------------- Docker -----------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
-if ! command -v curl &>/dev/null; then
+if ! command -v curl >/dev/null 2>&1; then
     apt-get update && apt-get install -y curl
 fi
 curl -fsSL get.docker.com | bash
@@ -16,5 +17,5 @@ DOCKER_RAMDISK=true /etc/init.d/docker start
 # Wait for docker socket to be available
 while [ ! -S /var/run/docker.sock ]; do sleep 1; done
 service docker status
-while ! ps aux | grep -q [d]ockerd; do sleep 1; done
+while ! ps aux | grep -q '[d]ockerd'; do sleep 1; done
 # You can now run docker commands...

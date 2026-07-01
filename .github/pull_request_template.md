@@ -1,7 +1,7 @@
 # Pull Request Title
 
 ## Description
-Please include a summary of the changes and the related issue. 
+Please include a summary of the changes and the related issue.
 
 ## Related Issue
 If applicable, please link to the issue here (e.g., #123).
@@ -15,7 +15,7 @@ Please select the type of change your pull request introduces:
 
 ## Checklist
 - [ ] This PR conforms to the process detailed in the [Contributing Guide](https://github.com/sandialabs/sceptre-phenix-images/tree/main/.github/CONTRIBUTING.md).  
-- [ ] I have included no proprietary/sensitive information in my code. 
+- [ ] I have included no proprietary/sensitive information in my code.
 - [ ] I have performed a self-review of my code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
 - [ ] I have made corresponding changes to the documentation.

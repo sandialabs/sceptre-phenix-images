@@ -29,7 +29,7 @@ COPY <<END inject.sh
 set -o pipefail # If using pipe in commands, fail for any non-exit 0
 set -o nounset # Error on unset variables
 set -o errexit # Exit immediately if a command exits with a non-zero status
-set -x 
+set -x
 
 FILE=\$(ls vyos-build/build/*.qcow2)
 VERSION=\$(basename \$FILE | cut -d- -f2)
@@ -93,7 +93,7 @@ DIR=/usr/lib/live/mount/persistence/boot/vyos/rw/config/scripts/custom
 FLAG="\$DIR/phenix-run-flag"
 DEFAULT_SCRIPT=/opt/vyatta/etc/config/scripts/custom/vyos.script
 
-# ensure custom script dir exists 
+# ensure custom script dir exists
 mkdir -p "\$DIR"
 
 # exit if already ran so setting aren't overwritten on reboot
@@ -245,7 +245,7 @@ EOF
         -v /dev:/dev \
         -v $CWD/vyos-build:/root \
         -w /root --privileged \
-        -e GOSU_UID=$(id -u) -e GOSU_GID=$(id -g) \
+        -e GOSU_UID="$(id -u)" -e GOSU_GID="$(id -g)" \
         ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:current \
         bash -c "sudo make -j$(nproc) qemu"
 
@@ -281,4 +281,4 @@ function cleanup() {
     cd $SCRIPT_DIR
 }
 
-build_vyos $@
+build_vyos "$@"
