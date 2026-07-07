@@ -1,17 +1,21 @@
 # This workflow runs weekly to clean up releases and tags older than 90 days
-name: release-cleanup
+name: Release Cleanup
+
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # Run on schedule
+  # Run once a week on Wednesday
   schedule:
     - cron: '11 12 * * WED'
+
 jobs:
   release-cleanup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: wow-actions/delete-stale-releases@v1.3.0
+      - uses: wow-actions/delete-stale-releases@57c9c5dec2bef88926595ba78cb090c2f5449be2 # v1.3.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_tags: true
@@ -26,7 +30,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@v1
+      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1
         with:
           older-than: 90 day
           packages: ${{ github.event.repository.name }}/${{ matrix.build }}.qc2
