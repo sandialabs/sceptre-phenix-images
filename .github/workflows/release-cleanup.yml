@@ -24,7 +24,21 @@ jobs:
   cleanup-old-images:
     strategy:
       matrix:
-        build: [bookworm, kali, kali-harmonie, jammy, noble, bennu, docker-hello-world, ntp, vyos]
+        build:
+          [
+            bookworm,
+            kali,
+            kali-harmonie,
+            jammy,
+            noble,
+            bennu,
+            docker-hello-world,
+            ntp,
+            vyos,
+            minirouter,
+            ubuntu-soaptools,
+            ot-sim
+          ]
     name: Delete Untagged Images
     runs-on: ubuntu-latest
     permissions:
@@ -33,6 +47,7 @@ jobs:
       - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1
         with:
           older-than: 90 day
-          packages: ${{ github.event.repository.name }}/${{ matrix.build }}.qc2
+          # hard-code repo name because GitHub Actions doesn't provide a clean way to get JUST the repo name
+          packages: sceptre-phenix-images/${{ matrix.build }}.qc2
           keep-n-tagged: 5
           exclude-tags: latest
