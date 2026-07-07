@@ -1,4 +1,4 @@
-.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp vyos ubuntu-soaptools clean ot-sim lint install-dev
+.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp vyos ubuntu-soaptools clean ot-sim lint install-dev update-actions
 
 .ONESHELL: # for heredoc and exit
 
@@ -160,3 +160,7 @@ lint:
 install-dev:
 	@command -v prek > /dev/null || pip install 'prek>=0.4.3'
 	@prek install
+
+update-actions:
+	@echo "Updating pinned actions in GitHub workflows..."
+	@docker run --rm -v $(CURDIR):/workflows mheap/pin-github-action .github/workflows/

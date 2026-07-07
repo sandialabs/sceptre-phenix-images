@@ -12,6 +12,7 @@ Thank you for your interest in contributing to SCEPTRE Phenix Images! We welcome
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Submitting Code](#submitting-code)
 - [Code Quality](#code-quality)
+- [Updating Actions](#updating-actions)
 - [License](#license)
 
 ## Getting Started
@@ -151,6 +152,17 @@ make lint
 # or, equivalently
 prek run --all-files
 ```
+
+## Updating Actions
+
+To update the pinned versions of Actions in the GitHub Workflows:
+
+1. Change the version comment, e.g. `# v4` to `# v7` to update an action from v4 to v7.
+1. Update the pinned hash:
+
+    ```bash
+    make update-actions
+    ```
 
 ## License
 

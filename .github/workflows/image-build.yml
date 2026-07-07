@@ -1,4 +1,4 @@
-name: image-build
+name: Image Build
 
 # Controls when the workflow will run
 on:
@@ -34,15 +34,20 @@ jobs:
             ot-sim
           ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       # Checkout repository code
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
       # Create slug var for branch ref suitiable for tags
-      - uses: rlespinasse/github-slug-action@v5.2.0
+      - uses: rlespinasse/github-slug-action@c33ff65466c58d57e4d796f88bb1ae0ff26ee453 # v5.2.0
       # Install oras CLI for pushing images to OCI registries
-      - uses: oras-project/setup-oras@v1
-      - uses: docker/setup-docker-action@v4
-      - uses: docker/setup-compose-action@v1
+      - uses: oras-project/setup-oras@38de303aac69abb66f3e6255b7198bff35f323e3 # v2
+      - uses: docker/setup-docker-action@6d7cfa65f60a9dda7b46e5513fa982536f3c9877 # v5
+      - uses: docker/setup-compose-action@4eb059ff7f16592f9c84d5ca339c53cb7c5064e2 # v2
       - name: install dependencies
         run: |
           sudo apt update
@@ -58,7 +63,7 @@ jobs:
 
       # Start docker containers
       - name: wget docker-compose.yml
-        uses: wei/wget@v1
+        uses: wei/wget@c15e476d1463f4936cb54f882170d9d631f1aba5 # v1
         with:
           args: https://raw.githubusercontent.com/sandialabs/sceptre-phenix/refs/heads/main/docker/docker-compose.yml
       - name: start docker containers
@@ -77,7 +82,7 @@ jobs:
 
       # Remove unneeded tools to make more build space
       - name: free disk space
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
           # skip the remove large-packages step because it takes a while
           large-packages: false
@@ -103,7 +108,7 @@ jobs:
         # or if manually triggered on a different branch so maintainers can manually push images
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || github.event_name == 'workflow_dispatch'
         shell: bash
-        run: |
+        run: |  # zizmor: ignore[template-injection]
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
           oras push "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" ${{ matrix.build }}.qc2
           # tag with branch name
@@ -133,16 +138,19 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       date: ${{ steps.date.outputs.date }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       # Get current date for tagging
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       # Install oras CLI
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@38de303aac69abb66f3e6255b7198bff35f323e3 # v2
       # Tag images in the registry with 'latest' and date-based tags
       - name: tag images with date and latest
-        run: |
+        run: |  # zizmor: ignore[template-injection]
           oras version
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
           oras tag ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
@@ -153,10 +161,12 @@ jobs:
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs: tag-images
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Create a GitHub release with notes and usage instructions
-      - name: create release
-        uses: ncipollo/release-action@v1.15.0
+      - name: create release  # zizmor: ignore[superfluous-actions]
+        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
         with:
           name: release-${{ needs.tag-images.outputs.date }}
           body: |
