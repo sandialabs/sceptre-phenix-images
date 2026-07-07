@@ -109,10 +109,11 @@ jobs:
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || github.event_name == 'workflow_dispatch'
         shell: bash
         run: |  # zizmor: ignore[template-injection]
+          REPO=${GITHUB_REPOSITORY,,}  # lowercase repo name for oras (capital letters not allowed in oras package names, some github usernames have capital letters)
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras push "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" ${{ matrix.build }}.qc2
+          oras push "ghcr.io/${REPO}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" ${{ matrix.build }}.qc2
           # tag with branch name
-          oras tag "ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" "${GITHUB_REF_SLUG}"
+          oras tag "ghcr.io/${REPO}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7}" "${GITHUB_REF_SLUG}"
   # Job: Tag images after successful builds
   tag-images:
     strategy:
@@ -151,9 +152,10 @@ jobs:
       # Tag images in the registry with 'latest' and date-based tags
       - name: tag images with date and latest
         run: |  # zizmor: ignore[template-injection]
+          REPO=${GITHUB_REPOSITORY,,}  # lowercase repo name for oras (capital letters not allowed in oras package names, some github usernames have capital letters)
           oras version
           oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          oras tag ghcr.io/${{ github.repository }}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
+          oras tag ghcr.io/${REPO}/${{ matrix.build }}.qc2:${GITHUB_SHA:0:7} latest ${{ steps.date.outputs.date }}
 
   # Job: Create release successful build
   release:
