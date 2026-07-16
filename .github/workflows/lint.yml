@@ -24,4 +24,11 @@ jobs:
       - name: Validate prek config
         run: prek validate-config prek.toml
       - name: Run prek
+        # The no-commit-to-branch hook exists to stop contributors from
+        # committing straight to main/master locally. It rightfully fails on
+        # push/PR branches that violate the naming rules, but it must be
+        # skipped here once code has actually landed on main/master upstream,
+        # otherwise every push to those branches would fail this check.
+        env:
+          PREK_SKIP: ${{ (github.ref == 'refs/heads/main') && 'no-commit-to-branch' || '' }}
         run: prek run --all-files --show-diff-on-failure
