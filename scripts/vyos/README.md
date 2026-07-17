@@ -1,14 +1,14 @@
 # VyOS Image Builder
 
 The `build-vyos.sh` script can be used to easily build a `vyos.qc2` VM image
-using the source code from the latest stable branch (currently `v1.5` -
-circinus).
+using the source code from the latest rolling branch of VyOS (currently `v1.5` -
+[Circinus](https://docs.vyos.io/en/rolling/introducing/history.html#circinus-1-5)).
 
-The script first uses a Docker image to build the qcow2 from source, then
-optionally uses a separate Docker image to inject the miniccc binary and set
-up the miniccc service to run at bootup.
+The script first uses a Docker image to build the qcow2 file from source, then
+optionally uses a separate Docker image to inject the `miniccc` binary and set
+up the `miniccc` service to run at bootup.
 
-The build_vyos() function was inspired by
+The `build_vyos()` function was inspired by
 [this forum post.](https://forum.vyos.io/t/build-for-qemu-or-vmware/15885/4)
 
 ## Usage
