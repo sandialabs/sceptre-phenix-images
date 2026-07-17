@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script will build a VyOS qcow2 image inside a docker container. The
-# VyOS version is set to 'current' and matches v1.5. Optionally, the full
+# VyOS version is set to 'rolling' and matches v1.5. Optionally, the full
 # path to a miniccc binary can be passed as another command line argument
 # and it will be injected into the final image, including a startup script
 # that runs on bootup. The final qcow2 image will be at: ./vyos.qc2
@@ -225,7 +225,7 @@ function build_vyos() {
 
     # fetch build files
     cd $CWD
-    git clone -b current --single-branch https://github.com/vyos/vyos-build
+    git clone -b rolling --single-branch https://github.com/vyos/vyos-build
     cd vyos-build
     git pull
 
@@ -239,14 +239,16 @@ image_format = "qcow2"
 packages = [$PACKAGES"qemu-guest-agent", "vim"]
 EOF
 
-    # build vyos
-    docker pull ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:current
+    ## build vyos
+    # this docker image is a clone of docker.io/vyos/vyos-build:rolling,
+    # pushed here to avoid rate limits
+    docker pull ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:rolling
     docker run --rm \
         -v /dev:/dev \
         -v $CWD/vyos-build:/root \
         -w /root --privileged \
         -e GOSU_UID="$(id -u)" -e GOSU_GID="$(id -g)" \
-        ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:current \
+        ghcr.io/sandialabs/sceptre-phenix-images/vyos-build:rolling \
         bash -c "sudo make -j$(nproc) qemu"
 
     if [ -f "$MINICCC_PATH" ]; then
