@@ -51,6 +51,12 @@ cd \$BOOT_PATH/\$VERSION_DIR
 unsquashfs -dest \$ROOTFS \$SQUASHFS
 rm \$SQUASHFS # old fs
 
+# increase screen size to be less cramped for VNC
+# the "autoload" part of filename is important, so grub.cfg will source it
+tee \$BOOT_PATH/grub/grub.cfg.d/00-custom-gfx-autoload.cfg <<EOF
+set gfxpayload=1280x1024x32,auto
+EOF
+
 # branding
 tee \$ROOTFS/usr/share/vyos/templates/login/default_motd.j2 <<EOF
 ██████╗ ██╗  ██╗███████╗███╗  ██╗██╗██╗  ██╗
