@@ -29,7 +29,7 @@ echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_22.04
 # if you are behind a proxy and get certificate errors, change `curl` to `curl --insecure`
 curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_22.04/Release.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
 apt update
-DEBIAN_FRONTEND=noninteractive apt install zeek-6.0 -y
+DEBIAN_FRONTEND=noninteractive apt install zeek-lts -y
 
 # install msfconsole for soap demo
 set -e
