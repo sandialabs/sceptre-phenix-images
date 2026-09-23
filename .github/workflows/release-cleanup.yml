@@ -1,4 +1,4 @@
-# This workflow runs weekly to clean up releases and tags older than 90 days
+# This workflow runs weekly to clean up releases and tags older than 121 days
 name: Release Cleanup
 
 on:
@@ -15,11 +15,32 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: wow-actions/delete-stale-releases@57c9c5dec2bef88926595ba78cb090c2f5449be2 # v1.3.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_tags: true
-          keep_latest_days: 90
+      # Delete every release (including drafts and prereleases) published
+      # more than KEEP_DAYS days ago, along with its tag. Drafts have no
+      # published_at, so they fall back to created_at, which is the date of
+      # the release's target commit. Tags without a release are left alone.
+      - name: delete stale releases and tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEEP_DAYS: 121
+        run: |
+          set -euo pipefail
+          # Collect the stale releases before deleting any, so deletions
+          # cannot shift the pagination and skip releases.
+          stale=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+            --jq ".[] | select(((.published_at // .created_at) | fromdateiso8601) < (now - ${KEEP_DAYS} * 86400)) | [.id, .tag_name] | @tsv")
+          if [[ -z "${stale}" ]]; then
+            echo "No releases older than ${KEEP_DAYS} days"
+            exit 0
+          fi
+          while IFS=$'\t' read -r id tag; do
+            echo "Deleting release ${id} and tag ${tag}"
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/releases/${id}"
+            # Draft releases may not have a tag yet.
+            if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" --silent 2>/dev/null; then
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${tag}"
+            fi
+          done <<< "${stale}"
 
   cleanup-old-images:
     strategy:
@@ -45,7 +66,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1
+      - uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:
           older-than: 90 day
           # hard-code repo name because GitHub Actions doesn't provide a clean way to get JUST the repo name

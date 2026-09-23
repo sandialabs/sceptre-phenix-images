@@ -40,15 +40,15 @@ jobs:
       packages: write
     steps:
       # Checkout repository code
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # Create slug var for branch ref suitiable for tags
-      - uses: rlespinasse/github-slug-action@c33ff65466c58d57e4d796f88bb1ae0ff26ee453 # v5.2.0
+      - uses: rlespinasse/github-slug-action@0e3299190dac9a700da92a90de4556116ea965ed # v5.7.1
       # Install oras CLI for pushing images to OCI registries
-      - uses: oras-project/setup-oras@38de303aac69abb66f3e6255b7198bff35f323e3 # v2
-      - uses: docker/setup-docker-action@6d7cfa65f60a9dda7b46e5513fa982536f3c9877 # v5
-      - uses: docker/setup-compose-action@4eb059ff7f16592f9c84d5ca339c53cb7c5064e2 # v2
+      - uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
+      - uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 # v5.4.0
+      - uses: docker/setup-compose-action@4eb059ff7f16592f9c84d5ca339c53cb7c5064e2 # v2.3.0
       - name: install dependencies
         run: |
           sudo apt update
@@ -63,10 +63,8 @@ jobs:
           docker tag ghcr.io/sandialabs/sceptre-phenix/minimega:main minimega:latest
 
       # Start docker containers
-      - name: wget docker-compose.yml
-        uses: wei/wget@c15e476d1463f4936cb54f882170d9d631f1aba5 # v1
-        with:
-          args: https://raw.githubusercontent.com/sandialabs/sceptre-phenix/refs/heads/main/docker/docker-compose.yml
+      - name: download docker-compose.yml
+        run: curl -fsSL --retry 3 -o docker-compose.yml https://raw.githubusercontent.com/sandialabs/sceptre-phenix/refs/heads/main/docker/docker-compose.yml
       - name: start docker containers
         run: |
           sed -i 's/\.\/tmp/\/tmp/g' docker-compose.yml
@@ -150,7 +148,7 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       # Install oras CLI
-      - uses: oras-project/setup-oras@38de303aac69abb66f3e6255b7198bff35f323e3 # v2
+      - uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
       # Tag images in the registry with 'latest' and date-based tags
       - name: tag images with date and latest
         run: |  # zizmor: ignore[template-injection]
@@ -170,7 +168,7 @@ jobs:
     steps:
       # Create a GitHub release with notes and usage instructions
       - name: create release  # zizmor: ignore[superfluous-actions]
-        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           name: release-${{ needs.tag-images.outputs.date }}
           body: |
