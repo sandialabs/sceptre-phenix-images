@@ -37,7 +37,8 @@ jobs:
             vyos,
             minirouter,
             ubuntu-soaptools,
-            ot-sim
+            ot-sim,
+            bennu-dev
           ]
     name: Delete Untagged Images
     runs-on: ubuntu-latest

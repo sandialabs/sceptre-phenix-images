@@ -18,6 +18,8 @@ UBUNTU_MIRROR=
 # tmp dir with plenty of space to use for vyos miniccc injection
 # override with env var if needed
 VYOSTMP?=$(WORKDIR)/vyostmp/
+# Default directory for bennu source code to be located.
+BENNU_DIR=
 
 # Show this help
 help:
@@ -135,6 +137,14 @@ ubuntu-soaptools:
 	@$(CHECK_IMAGE)
 	@$(CHECK_TAR)
 	@$(PHENIX) image create -r jammy -v mingui -s 50G -T $(WORKDIR)/scripts/atomic/ubuntu-user.sh,$(WORKDIR)/scripts/soaptools.sh $(UBUNTU_MIRROR) $(COMPRESS) $(@)
+	@$(PHENIX_IMAGE_BUILD)
+	@$(INJECT_MINICCC)
+
+# Build bennu-dev.qc2			-- Ubuntu Jammy, bennu-dev, bennu, brash
+bennu-dev:
+	@$(CHECK_IMAGE)
+	@$(CHECK_TAR)
+	@$(PHENIX) image create -O $(WORKDIR)/overlays/bennu-dev,$(WORKDIR)/overlays/bennu,$(WORKDIR)/overlays/brash -T $(WORKDIR)/scripts/bennu-dev.sh $(BENNU_DIR) $(UBUNTU_MIRROR) $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
 
