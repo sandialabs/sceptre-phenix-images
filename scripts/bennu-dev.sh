@@ -160,7 +160,7 @@ make -j"$(nproc)"
 make install
 
 # Install pybennu
-pip install uv==0.12.7 packaging==25.0 uv-build>=0.9.7
+pip install uv==0.12.7 packaging==25.0 'uv-build>=0.9.7'
 cd $BENNU_DIR/src/pybennu/
 pip install -U pip
 # OPTIONAL: Install pyZMQ & pyHelics with an offline clone
