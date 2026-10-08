@@ -146,7 +146,7 @@ jobs:
       # Get current date for tagging
       - name: Get current date
         id: date
-        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        run: echo "date=$(date +'v%Y.%m.%d')" >> $GITHUB_OUTPUT
       # Install oras CLI
       - uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
       # Tag images in the registry with 'latest' and date-based tags
@@ -167,18 +167,26 @@ jobs:
       contents: write
     steps:
       # Create a GitHub release with notes and usage instructions
-      - name: create release  # zizmor: ignore[superfluous-actions]
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          name: release-${{ needs.tag-images.outputs.date }}
-          body: |
-            Images can be downloaded from the registry using the oras client: https://oras.land/docs/installation
-            e.g.:
-            ```bash
-            oras pull ghcr.io/${{ github.repository }}/bennu.qc2:latest
-            ```
-            You can view the available image builds from the [Package List](https://github.com/orgs/${{ github.repository_owner }}/packages?repo_name=${{ github.event.repository.name }})
-          tag: release-${{ needs.tag-images.outputs.date }}
-          commit: main
-          generateReleaseNotes: true
-          makeLatest: true
+      - name: create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.tag-images.outputs.date }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          cat > notes.md <<EOF
+          Images can be downloaded from the registry using the oras client: https://oras.land/docs/installation
+          e.g.:
+          \`\`\`bash
+          oras pull ghcr.io/${REPO}/bennu.qc2:latest
+          \`\`\`
+          You can view the available image builds from the [Package List](https://github.com/orgs/${OWNER}/packages?repo_name=${REPO_NAME})
+          EOF
+          gh release create "$VERSION" \
+            --repo "$REPO" \
+            --title "$VERSION" \
+            --notes-file notes.md \
+            --generate-notes \
+            --target main \
+            --latest
