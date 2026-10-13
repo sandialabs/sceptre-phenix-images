@@ -60,7 +60,7 @@ kali-harmonie:
 jammy:
 	@$(CHECK_IMAGE)
 	@$(CHECK_TAR)
-	@$(PHENIX) image create -v mingui $(UBUNTU_MIRROR) $(COMPRESS) $(@)
+	@$(PHENIX) image create -r jammy -v mingui $(UBUNTU_MIRROR) $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
 
@@ -80,11 +80,11 @@ noble:
 bennu:
 	@$(CHECK_IMAGE)
 	@$(CHECK_TAR)
-	@$(PHENIX) image create -O $(WORKDIR)/overlays/bennu,$(WORKDIR)/overlays/brash -T $(WORKDIR)/scripts/bennu.sh $(UBUNTU_MIRROR) $(COMPRESS) $(@)
+	@$(PHENIX) image create -r jammy -O $(WORKDIR)/overlays/bennu,$(WORKDIR)/overlays/brash -T $(WORKDIR)/scripts/bennu.sh $(UBUNTU_MIRROR) $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
 
-# Build docker-hello-world.qc2	-- Ubuntu Jammy, Docker hello-world
+# Build docker-hello-world.qc2	-- Ubuntu Noble, Docker hello-world
 docker-hello-world:
 	@$(CHECK_IMAGE)
 	@$(CHECK_TAR)
@@ -99,11 +99,11 @@ ot-sim:
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
 
-# Build ntp.qc2			-- Ubuntu Jammy, ntpd
+# Build ntp.qc2			-- Ubuntu Noble, chrony
 ntp:
 	@$(CHECK_IMAGE)
 	@$(CHECK_TAR)
-	@$(PHENIX) image create -P ntp $(UBUNTU_MIRROR) $(COMPRESS) $(@)
+	@$(PHENIX) image create -P chrony $(UBUNTU_MIRROR) $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
 
