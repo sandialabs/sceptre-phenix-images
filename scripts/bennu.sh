@@ -92,9 +92,6 @@ userlist_enable=YES
 userlist_file=/etc/vsftpd.allowed_users
 EOF
 
-# Change root's password
-echo "root:SiaSd3te" | chpasswd
-
 # Add "sceptre" user, set their login shell to Brash
 adduser sceptre --UID 1001 --gecos "" --shell /usr/bin/bennu-brash --disabled-login || true
 echo "sceptre:sceptre" | chpasswd
