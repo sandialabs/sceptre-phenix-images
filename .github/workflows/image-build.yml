@@ -89,7 +89,8 @@ jobs:
       # Build the non-vyos images using phenix
       - name: ${{ matrix.build }} image build
         if: ${{ matrix.build != 'vyos' }}
-        run: make ${{ matrix.build }}
+        # Use a faster Ubuntu mirror (only applies to Ubuntu-based image builds)
+        run: make ${{ matrix.build }} UBUNTU_MIRROR=--mirror=http://mirrors.edge.kernel.org/ubuntu
 
       # Build the vyos image using custom build script
       # Using /mnt for more temp space for injecting miniccc
