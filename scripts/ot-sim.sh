@@ -40,10 +40,14 @@ sudo mv hivemind /usr/local/bin/hivemind
 sudo chmod +x /usr/local/bin/hivemind
 
 # Install MBPoll
-wget -O- http://www.piduino.org/piduino-key.asc | sudo apt-key add -
-sudo add-apt-repository 'deb http://apt.piduino.org xenial piduino'
-sudo apt update
-sudo apt install mbpoll -y
+# NOTE: Temporarily disabled because piduino.org is down and the upstream
+# mbpoll v1.5.4 deb requires Ubuntu 24.04 (libmodbus5 >= 3.1.7, GLIBC_2.34+).
+# Tracked in issue #46 to update ot-sim to Ubuntu 24.04 and install from:
+# https://github.com/epsilonrt/mbpoll/releases/download/v1.5.4/mbpoll_1.5.4_amd64.deb
+# wget -O- http://www.piduino.org/piduino-key.asc | sudo apt-key add -
+# sudo add-apt-repository 'deb http://apt.piduino.org xenial piduino'
+# sudo apt update
+# sudo apt install mbpoll -y
 
 # Install OpenDSS
 sudo python3 -m pip install opendssdirect.py~=0.8.4
