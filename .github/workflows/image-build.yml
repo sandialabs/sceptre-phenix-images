@@ -17,6 +17,8 @@ jobs:
   # Job: Build images using the phenix image builder
   build-images:
     strategy:
+      # Build every image even if one fails, so one broken image doesn't hide the others' results
+      fail-fast: false
       matrix:
         build:
           [
