@@ -170,6 +170,7 @@ the Makefile are shown below.
 | kali | Kali / kali-rolling | `kali-tools-top10` | | :white_check_mark: |
 | jammy | Ubuntu / jammy | | | :white_check_mark: |
 | noble | Ubuntu / noble | | | :white_check_mark: |
+| resolute | Ubuntu / resolute | | | :white_check_mark: |
 
 ## Experiment Linux Images
 
