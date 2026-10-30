@@ -3,7 +3,7 @@
 .ONESHELL: # for heredoc and exit
 
 # this addresses case of /phenix differing between host and container
-WORKDIR := $(PWD)
+WORKDIR ?= $(CURDIR)
 
 PHENIX=docker exec -t phenix phenix
 PHENIX_IMAGE_BUILD=$(PHENIX) image build -o $(WORKDIR) -c -x $(@) || exit 1
