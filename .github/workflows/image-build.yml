@@ -99,8 +99,7 @@ jobs:
         shell: bash
         run: |
           sudo modprobe nbd
-          export VYOSTMP=/mnt/vyostmp
-          sudo -E make ${{ matrix.build }}
+          sudo make ${{ matrix.build }} VYOSTMP=/mnt/vyostmp
 
       # Publish the built image to GitHub Container Registry using oras
       - name: publish package with oras
