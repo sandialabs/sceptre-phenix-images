@@ -178,7 +178,7 @@ the Makefile are shown below.
 | bennu | Ubuntu / jammy | Bennu, Brash | Official SCEPTRE image used for running bennu in experiments (includes brash shell) | :x: |
 | docker-hello-world | Ubuntu / noble | Docker | Shows how you can run a service (dockerd) inside the chroot image build environment | :x: |
 | ntp | Ubuntu / noble | [chrony](https://chrony-project.org/doc/latest/chronyd.html) - network time protocol server | | :x: |
-| vyos | VyOS / 1.5 | [VyOS](https://docs.vyos.io/en/latest/) | Open-source enterprise-grade router platform | :x: |
+| vyos | VyOS / rolling | [VyOS](https://docs.vyos.io/en/latest/) | Open-source enterprise-grade router platform | :x: |
 | minirouter | Ubuntu / noble | miniccc/minirouter | Minimega-based router | :x: |
 | soaptools | Ubuntu / jammy | filebeat,zeek,msf | preconfigured image for the [soap-hil topology](https://github.com/sandialabs/sceptre-phenix-topologies/tree/main/soap-hil) | :white_check_mark:  |
 | kali-harmonie | Kali / kali-rolling | Scapy, pybind11, HELICS, pyOpenDNP3, elasticsearch-py | Kali Linux image for the HARMONIE-SPS LDRD. | :white_check_mark: |
