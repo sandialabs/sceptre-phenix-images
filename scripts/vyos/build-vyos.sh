@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# This script will build a VyOS qcow2 image inside a docker container. The
-# VyOS version is set to 'rolling' and matches v1.5. Optionally, the full
-# path to a miniccc binary can be passed as another command line argument
-# and it will be injected into the final image, including a startup script
-# that runs on bootup. The final qcow2 image will be at: ./vyos.qc2
+# This script will build a VyOS qcow2 image inside a docker container from
+# the 'rolling' branch, which vyos-build versions 999.<timestamp>. Optionally,
+# the full path to a miniccc binary can be passed as another command line
+# argument and it will be injected into the final image, including a startup
+# script that runs on bootup. The final qcow2 image will be at: ./vyos.qc2
 #
 #   Usage: ./build-vyos.sh [-m <path to miniccc>]
 
@@ -31,15 +31,19 @@ set -o nounset # Error on unset variables
 set -o errexit # Exit immediately if a command exits with a non-zero status
 set -x
 
+# the image is vyos-<version>-<flavor>-<arch>.qcow2 and holds its rootfs at
+# boot/<version>/<version>.squashfs; the version is 999.<timestamp> on rolling
+# and <major>-rolling-<timestamp> on the release branches (vyos-build T9547)
 FILE=\$(ls vyos-build/build/*.qcow2)
-VERSION=\$(basename \$FILE | cut -d- -f2)
-DATESTAMP=\$(basename \$FILE | cut -d- -f4)
+VERSION=\$(basename \$FILE .qcow2)
+VERSION=\${VERSION#vyos-}
+VERSION=\${VERSION%-*-*}
 
 # mount squashfs rootfs as rw
 MOUNT=/tmp/mount
 BOOT_PATH=\$MOUNT/boot
-VERSION_DIR=\$VERSION-rolling-\$DATESTAMP
-SQUASHFS=\$VERSION-rolling-\$DATESTAMP.squashfs
+VERSION_DIR=\$VERSION
+SQUASHFS=\$VERSION.squashfs
 UNPACK_PATH=/scratch
 ROOTFS=\$UNPACK_PATH/squashfs-root
 
