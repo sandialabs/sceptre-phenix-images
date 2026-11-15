@@ -48,3 +48,5 @@ cursor_mcp.json
 # Windsurf
 .windsurf/
 .windsurfrules
+scripts/kali-purple.configured.sh
+overlays/parseus-bundle

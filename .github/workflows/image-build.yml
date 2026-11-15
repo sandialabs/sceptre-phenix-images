@@ -17,12 +17,15 @@ jobs:
   # Job: Build images using the phenix image builder
   build-images:
     strategy:
+      # One broken image (e.g. vyos) must not cancel the builds of all the others
+      fail-fast: false
       matrix:
         build:
           [
             bookworm,
             kali,
             kali-harmonie,
+            kali-purple,
             jammy,
             noble,
             bennu,
@@ -122,6 +125,7 @@ jobs:
             bookworm,
             kali,
             kali-harmonie,
+            kali-purple,
             jammy,
             noble,
             bennu,

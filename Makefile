@@ -1,4 +1,4 @@
-.PHONY: help check_clean bookworm kali kali-harmonie jammy noble bennu minirouter _minirouter_img docker-hello-world ntp vyos ubuntu-soaptools clean ot-sim lint install-dev update-actions
+.PHONY: help check_clean bookworm kali kali-harmonie kali-purple kali-purple-bundle jammy noble bennu minirouter _minirouter_img docker-hello-world ntp vyos ubuntu-soaptools clean ot-sim lint install-dev update-actions
 
 .ONESHELL: # for heredoc and exit
 
@@ -55,6 +55,26 @@ kali-harmonie:
 	@$(PHENIX) image create -l main,non-free,contrib -r kali-rolling -v minbase -s 50G $(COMPRESS) $(@)
 	@$(PHENIX_IMAGE_BUILD)
 	@$(INJECT_MINICCC)
+
+# Build kali-purple.qc2	-- Kali Purple + parseus + PEAT, GUI
+# PARSEUS_OFFLINE=1 bakes parseus's offline bundle (container images included) into the image so first
+# boot needs no network; stage it first with 'make kali-purple-bundle' on a docker host. Default: network install on first boot.
+# PARSEUS_REPO / PARSEUS_REF / PARSEUS_INTEGRATIONS (make vars or env) are baked, shell-quoted, into a
+# generated copy of the script, since docker exec does not carry them into the chroot build.
+export PARSEUS_REPO PARSEUS_REF PARSEUS_INTEGRATIONS
+KALI_PURPLE_SCRIPT=$(WORKDIR)/scripts/kali-purple.configured.sh
+kali-purple:
+	@if [ -n "$(PARSEUS_OFFLINE)" ] && [ ! -d "$(CURDIR)/overlays/parseus-bundle/opt/parseus-bundle" ]; then echo "\n\tPARSEUS_OFFLINE set but no bundle: run 'make kali-purple-bundle' first\n"; exit 1; fi
+	@$(CHECK_IMAGE)
+	@$(CHECK_TAR)
+	@python3 -I -c 'import os,shlex,sys; sys.stdout.write("#!/bin/sh\n" + "".join("%s=%s\n" % (k, shlex.quote(os.environ.get(k, ""))) for k in ("PARSEUS_REPO","PARSEUS_REF","PARSEUS_INTEGRATIONS")) + open(sys.argv[1]).read().split("\n", 1)[1])' $(WORKDIR)/scripts/kali-purple.sh > $(KALI_PURPLE_SCRIPT)
+	@$(PHENIX) image create -P kali-linux-headless $(if $(PARSEUS_OFFLINE),-O $(WORKDIR)/overlays/parseus-bundle) -T $(KALI_PURPLE_SCRIPT) -r kali-rolling -v mingui -s 80G $(COMPRESS) $(@)
+	@$(PHENIX_IMAGE_BUILD)
+	@$(INJECT_MINICCC)
+
+# Stage the parseus offline bundle (~2 GB of container images, amd64 unless DOCKER_PLATFORM=linux/arm64) into overlays/parseus-bundle; needs docker, git, make, python3 >= 3.11
+kali-purple-bundle:
+	@$(CURDIR)/scripts/parseus-bundle.sh $(CURDIR)/overlays/parseus-bundle
 
 # Build jammy.qc2		-- Ubuntu Jammy, GUI
 jammy:
