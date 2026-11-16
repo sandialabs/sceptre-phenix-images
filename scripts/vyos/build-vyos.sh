@@ -242,16 +242,11 @@ function build_vyos() {
     # fix losetup not populating the partitions on the image
     sed -i 's/losetup --show/losetup --partscan --show/' scripts/image-build/raw_image.py
 
-    # ensure kernel_version in defaults.toml is available in the VyOS package mirror
-    KERNEL_IN_CONFIG=$(sed -n 's/^kernel_version = "\(.*\)"/\1/p' data/defaults.toml)
+    # ensure the kernel in defaults.toml is available in the VyOS package mirror
     PACKAGES_LIST=$(curl -fsSL https://packages.vyos.net/repositories/rolling/dists/rolling/main/binary-amd64/Packages.gz 2>/dev/null | gzip -d 2>/dev/null || true)
-    if [ -n "$PACKAGES_LIST" ] && ! grep -Fxq "Package: linux-image-${KERNEL_IN_CONFIG}-vyos" <<< "$PACKAGES_LIST"; then
-        AVAILABLE_KERNEL=$(awk -F': ' '$1=="Package" && $2 ~ /^linux-image-[0-9].*-vyos$/ && $2 !~ /-dbg$/ { gsub(/^linux-image-|-vyos$/, "", $2); print $2 }' <<< "$PACKAGES_LIST" | sort -V | tail -n1)
-        if [ -n "$AVAILABLE_KERNEL" ]; then
-            echo "WARNING: Kernel ${KERNEL_IN_CONFIG} not found in VyOS repository; using available ${AVAILABLE_KERNEL}"
-            sed -i "s/^kernel_version = .*/kernel_version = \"${AVAILABLE_KERNEL}\"/" data/defaults.toml
-        fi
-    fi
+    # shellcheck source=scripts/vyos/kernel-fallback.sh
+    . "$SCRIPT_DIR/kernel-fallback.sh"
+    vyos_pin_kernel data/defaults.toml "$PACKAGES_LIST"
 
     # add qemu build flavor
     cat << EOF > data/build-flavors/qemu.toml
